@@ -573,6 +573,16 @@ tbody tr:hover { background: rgba(99, 102, 241, 0.03); }
 .principal-row { background: rgba(148, 163, 184, 0.02); }
 
 /* === グラフ === */
+.chart-container {
+  position: relative;
+  width: 100%;
+}
+
+.chart-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 .chart-wrapper {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);

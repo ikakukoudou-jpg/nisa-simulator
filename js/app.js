@@ -707,9 +707,8 @@ function renderHistogramChart(mcResultA, mcResultB) {
           backgroundColor: "rgba(99, 102, 241, 0.5)",
           borderColor: "rgba(99, 102, 241, 1)",
           borderWidth: 1,
-          barPercentage: 0.9,
-          categoryPercentage: 0.9,
-          maxBarThickness: 40,
+          barThickness: 15,
+          maxBarThickness: 20,
           minBarLength: 2,
           order: 2
         },
@@ -719,9 +718,8 @@ function renderHistogramChart(mcResultA, mcResultB) {
           backgroundColor: "rgba(16, 185, 129, 0.5)",
           borderColor: "rgba(16, 185, 129, 1)",
           borderWidth: 1,
-          barPercentage: 0.9,
-          categoryPercentage: 0.9,
-          maxBarThickness: 40,
+          barThickness: 15,
+          maxBarThickness: 20,
           minBarLength: 2,
           order: 1
         }
@@ -749,16 +747,7 @@ function renderHistogramChart(mcResultA, mcResultB) {
           }
         },
         tooltip: {
-          backgroundColor: "rgba(255, 255, 255, 0.95)",
-          titleColor: "#1e293b",
-          bodyColor: "#334155",
-          borderColor: "rgba(0,0,0,0.1)",
-          borderWidth: 1,
-          padding: 12,
-          callbacks: {
-            title: (items) => `資産額: ${formatCurrency(items[0].raw.x)} 付近`,
-            label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.y} 回`
-          }
+          enabled: false
         }
       },
       scales: {
