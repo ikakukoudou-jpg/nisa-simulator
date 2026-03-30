@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="新NISA積立投資枠で人気の投資信託を比較。S&P500・FANG+・オルカンの将来資産額を15年・20年でシミュレーション。">
-  <title>新NISA積立シミュレーション｜S&P500・FANG+・オルカン比較</title>
+  <meta name="description" content="2種類の投資信託の積立投資を比較シミュレーション。S&P500・FANG+・オルカンなどの将来資産額をモンテカルロ法で予測します。">
+  <title>投資信託 比較シミュレーター｜新NISA積立シミュレーション</title>
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <!-- OGP Tags -->
-  <meta property="og:title" content="新NISA対応 投資信託比較シミュレーター">
-  <meta property="og:description" content="新NISAで人気の投資信託を比較。15年・20年後の将来資産額をシミュレーション。">
+  <meta property="og:title" content="投資信託 比較シミュレーター">
+  <meta property="og:description" content="新NISAで人気の投資信託を比較。将来の資産推移をシミュレーション。">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ikakukoudou-jpg.github.io/nisa-simulator/">
 
@@ -22,7 +22,7 @@
     <header class="header">
       <!-- 上部スペーサー（将来的な広告枠・バナー配置用） -->
       <div style="height: 12px;"></div>
-      <h1>新NISA対応 投資信託比較シミュレーター</h1>
+      <h1>投資信託 比較シミュレーター</h1>
       <p style="font-size: 0.85rem; color: #475569; max-width: 640px; margin: 4px auto 16px; line-height: 1.5;">
         新NISAで人気の2本の投資信託を選び、15年・20年後の将来資産額を比較できます。
       </p>
@@ -350,11 +350,12 @@
 
       <!-- フッターリンク群 -->
       <div class="footer-links">
+        <a href="../">🏠 ホームへ戻る</a>
         <a href="about.html">運営者情報</a>
         <a href="terms.html">利用規約</a>
         <a href="disclaimer.html">免責事項</a>
         <a href="privacy.html">プライバシーポリシー</a>
-        <a href="contact.html">お問い合わせ</a>
+        <a href="javascript:void(0)" onclick="openModal('modal-contact')">お問い合わせ</a>
       </div>
 
       <!-- コピーライト -->
@@ -367,7 +368,73 @@
 
   </div>
 
+  <style>
+    /* お問い合わせモーダル用スタイル */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10000; opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-box {
+      background: #ffffff; width: 90%; max-width: 500px;
+      padding: 32px; border-radius: 16px; position: relative;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transform: translateY(20px); transition: transform 0.3s ease;
+    }
+    .modal-overlay.active .modal-box { transform: translateY(0); }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px; background: none; border: none;
+      font-size: 24px; color: #94a3b8; cursor: pointer; line-height: 1;
+    }
+    .modal-title { font-size: 1.25rem; font-weight: 800; color: #1e293b; margin-bottom: 24px; text-align: center; }
+    .modal-content p { font-size: 0.95rem; color: #475569; line-height: 1.7; margin-bottom: 12px; text-align: left; }
+    .btn-contact-form {
+      display: inline-block; background: linear-gradient(90deg, #7C3AED, #6366F1);
+      color: #FFF; text-decoration: none; font-weight: bold;
+      padding: 14px 28px; border-radius: 8px; transition: 0.3s;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+    .btn-contact-form:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); }
+  </style>
+
+  <!-- お問い合わせモーダル -->
+  <div id="modal-contact" class="modal-overlay" onclick="closeModal(event, 'modal-contact')">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal(event, 'modal-contact')">×</button>
+      <h2 class="modal-title">お問い合わせ</h2>
+      <div class="modal-content">
+        <p>当サイトに関するご意見・ご質問・不具合報告がありましたら、以下のフォームよりご連絡ください。</p>
+        <p>現在、個人運営のため返信に時間をいただく場合があります。</p>
+        <p>内容によっては回答できない場合がありますのでご了承ください。</p>
+        <p>返信が必要な内容については、確認後できる範囲で対応いたします。</p>
+        
+        <div style="text-align: center; margin-top: 24px;">
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSfXhEGP-qnCSzl3DimTrvZgx8mErYJ6LkWSd-lUwiHKl2DbjQ/viewform?usp=publish-editor" 
+             target="_blank" 
+             rel="noopener noreferrer" 
+             class="btn-contact-form">
+            📩 お問い合わせフォームはこちら
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- スクリプト読み込み（順序重要） -->
+  <script>
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(e, id) {
+      document.getElementById(id).classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  </script>
   <script src="js/funds.js"></script>
   <script src="js/simulator.js"></script>
   <script src="js/app.js"></script>
