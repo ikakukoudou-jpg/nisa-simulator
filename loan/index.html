@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="住宅ローンの繰上返済と投資継続、どちらが有利かを比較できるシミュレーターです。">
+  <title>住宅ローン・資産運用の最適化シミュレーター｜ツール作成個人研究室</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --wall-bg: #FCFDFB;
+      --desk-light: #7E5132; /* ウォルナット調 明るめ */
+      --desk-dark: #4A2B15;  /* ウォルナット調 暗め */
+      --wood-border: #2B1608;
+      --wood-dark: #1E0F05;
+      --brass: #D4AF67;
+      --brass-dark: #9B7B3F;
+      --paper: #FDFBF7; /* やや黄みがかった製図用紙風 */
+      --text-main: #2C2C2C;
+      --text-muted: #5A5A5A;
+      --accent: #ca8a04;
+      --shadow-desk: 0 16px 40px rgba(30, 15, 5, 0.4);
+      --shadow-card: 0 4px 12px rgba(30, 15, 5, 0.08);
+      --transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    body {
+      font-family: 'Inter', 'Noto Sans JP', sans-serif;
+      background-color: var(--wall-bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background-image: 
+        linear-gradient(to right, rgba(115, 107, 99, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(115, 107, 99, 0.04) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    /* メインコンテナ（ウォルナット調製図机） */
+    .desk-container {
+      width: 95%; max-width: 860px;
+      margin: 3rem auto 2rem;
+      background: linear-gradient(145deg, var(--desk-light) 0%, var(--desk-dark) 100%);
+      border: 10px solid var(--wood-border);
+      border-radius: 8px;
+      box-shadow: var(--shadow-desk), inset 0 0 50px rgba(0,0,0,0.3);
+      padding: 2.5rem 2rem 3rem;
+      position: relative;
+    }
+
+    /* 真鍮のヒンジ */
+    .brass-hinge {
+      position: absolute;
+      width: 14px; height: 14px;
+      background: radial-gradient(circle at 4px 4px, #FDF0C6 0%, var(--brass) 50%, var(--brass-dark) 100%);
+      border-radius: 50%;
+      box-shadow: 1px 2px 4px rgba(0,0,0,0.5), inset -1px -1px 2px rgba(0,0,0,0.3);
+    }
+    .bh-tl { top: 12px; left: 12px; }
+    .bh-tr { top: 12px; right: 12px; }
+    .bh-bl { bottom: 12px; left: 12px; }
+    .bh-br { bottom: 12px; right: 12px; }
+
+    /* 中の書類（キャンバス） */
+    .paper-canvas {
+      background: var(--paper);
+      border: 2px solid #E2E8F0;
+      border-radius: 6px;
+      padding: 2.5rem 2rem;
+      box-shadow: var(--shadow-card);
+      position: relative;
+    }
+
+    .header-nav {
+      margin-bottom: 2rem;
+      border-bottom: 2px dashed #CBD5E1;
+      padding-bottom: 1rem;
+    }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--text-muted); text-decoration: none;
+      font-size: 0.9rem; font-weight: 600;
+      transition: var(--transition);
+    }
+    .back-link:hover { color: var(--wood-border); }
+
+    .site-title {
+      font-size: 1.5rem; font-weight: 800; color: var(--wood-dark);
+      margin-top: 1rem; margin-bottom: 0.5rem;
+    }
+    .site-desc { font-size: 0.95rem; color: var(--text-muted); }
+
+    /* セクションと入力フォーム */
+    .section-title {
+      font-size: 1.15rem; font-weight: 700; color: var(--wood-dark);
+      margin-top: 2rem; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .input-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.2rem;
+    }
+    .input-group { display: flex; flex-direction: column; gap: 6px; }
+    .input-label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+    .input-wrapper { 
+      display: flex; 
+      align-items: stretch; 
+      background: #FFF; 
+      border: 1px solid #94A3B8; 
+      border-radius: 4px; 
+      overflow: hidden; 
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); 
+    }
+
+    .input-field { 
+      flex: 1; 
+      border: none; 
+      padding: 10px 12px; 
+      font-size: 1.1rem; 
+      font-weight: 600; 
+      color: var(--text-main);
+      outline: none; 
+      width: 100%; 
+    }
+
+    .input-field:focus { 
+      background: #F8FAFC; 
+    }
+
+    .input-unit { 
+      display: flex;
+      align-items: center; 
+      background: #E2E8F0; 
+      color: var(--text-main); 
+      padding: 0 16px; 
+      font-size: 0.95rem; 
+      font-weight: 700; 
+      border-left: 1px solid #94A3B8; 
+      white-space: nowrap; 
+    }
+
+    .input-note {
+      font-size: 0.85rem;
+      color: #64748B;
+      margin-top: 12px;
+      line-height: 1.5;
+      padding-left: 4px;
+    }
+
+    /* 詳細モード関連 */
+    .detailed-toggle-wrapper {
+      margin-top: 1.5rem;
+      background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 12px 16px;
+    }
+    .toggle-label {
+      display: flex; align-items: center; gap: 8px; cursor: pointer;
+      font-weight: 600; color: var(--text-main); font-size: 0.95rem; user-select: none;
+    }
+    .detailed-settings {
+      margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed #CBD5E1;
+      display: none;
+    }
+
+    /* アクションボタン */
+    .action-container { margin-top: 2rem; text-align: center; }
+    .btn-calc {
+      background: var(--wood-border); color: #FFF;
+      border: none; border-radius: 6px; padding: 12px 32px;
+      font-size: 1.1rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: var(--transition);
+    }
+    .btn-calc:hover { background: var(--desk-dark); transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+    .btn-calc:disabled { background: #94A3B8; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.8; }
+
+    /* 結果エリア */
+    .result-area { margin-top: 3rem; display: none; }
+    .conclusion-box {
+      background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 6px;
+      padding: 1.2rem 1.5rem; margin-bottom: 2rem; color: #92400E; font-weight: 600; line-height: 1.6;
+    }
+    .chart-container { 
+      position: relative; 
+      height: 500px; 
+      width: 100%; 
+      margin-top: 1.5rem; 
+    }
+
+    /* フッター */
+    .site-footer { background: #FDFBF7; border-top: 1px solid #E2E8F0; padding: 3rem 1rem; color: var(--text-muted); font-size: 0.85rem; line-height: 1.8; margin-top: auto; text-align: center; }
+    .footer-inner { max-width: 800px; margin: 0 auto; }
+    .footer-nav { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .footer-nav a { color: var(--text-muted); text-decoration: none; border-bottom: 1px solid transparent; transition: 0.2s; cursor: pointer; }
+    .footer-nav a:hover { color: var(--wood-dark); border-bottom-color: var(--text-muted); }
+    .footer-copy { margin-top: 2rem; font-weight: 500; }
+    
+    /* モーダル */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; opacity: 0; transition: opacity 0.3s ease; }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-box { background: #FFF; width: 100%; max-width: 600px; max-height: 80vh; overflow-y: auto; border-radius: 8px; padding: 2.5rem; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; text-align: left; }
+    .modal-overlay.active .modal-box { transform: translateY(0); }
+    .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #94A3B8; transition: color 0.2s; }
+    .modal-close:hover { color: var(--wood-dark); }
+    .modal-title { font-size: 1.3rem; font-weight: 800; color: var(--wood-dark); margin-bottom: 1.5rem; border-bottom: 2px solid #F1F5F9; padding-bottom: 0.5rem; }
+    .modal-content h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--wood-border); }
+    .modal-content p, .modal-content ul { font-size: 0.9rem; line-height: 1.7; margin-bottom: 1rem; color: var(--text-main); }
+    .modal-content ul { padding-left: 1.5rem; }
+
+    .alert-panel { background: #FEF2F2; border: 2px solid #FECACA; border-radius: 6px; padding: 1rem 1.2rem; margin-bottom: 1rem; color: #991B1B; font-size: 0.9rem; line-height: 1.6; display: flex; align-items: flex-start; gap: 8px; }
+    .alert-panel .alert-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 2px; }
+    .reversal-box { background: linear-gradient(135deg, #EFF6FF, #DBEAFE); border: 2px solid #93C5FD; border-radius: 8px; padding: 1.2rem 1.5rem; margin-top: 1.5rem; margin-bottom: 1.5rem; }
+    .reversal-title { font-size: 1.1rem; font-weight: 800; color: #000000; margin-bottom: 8px; }
+    .reversal-desc { font-size: 0.9rem; color: #000000; line-height: 1.7; }
+    .btn-explain { display: inline-block; margin-top: 10px; background: #2563EB; color: #FFF; border: none; border-radius: 4px; padding: 6px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: var(--transition); }
+    .btn-explain:hover { background: #1D4ED8; transform: translateY(-1px); }
+    .btn-contact { display: inline-block; background: #4A2B15; color: #FFF !important; text-decoration: none !important; border: none; border-radius: 6px; padding: 10px 20px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: var(--transition); box-shadow: 0 2px 6px rgba(30,15,5,0.2); }
+    .btn-contact:hover { background: #2B1608; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(30,15,5,0.3); }
+    .diagram-caption { font-size: 0.85rem; color: #475569; text-align: center; margin-top: 12px; padding: 10px; background: #F1F5F9; border-radius: 4px; line-height: 1.6; }
+    .concept-diagram { display: flex; justify-content: center; gap: 40px; align-items: flex-end; margin: 24px auto; padding: 20px 10px 10px; max-width: 420px; }
+    .concept-col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .concept-col-title { font-size: 0.8rem; font-weight: 700; text-align: center; line-height: 1.4; }
+    .concept-arrow { width: 60px; position: relative; border-radius: 4px 4px 0 0; display: flex; align-items: flex-end; justify-content: center; }
+    .concept-arrow::after { content: ''; position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 30px solid transparent; border-right: 30px solid transparent; }
+    .arrow-red { background: linear-gradient(180deg, #EF4444, #DC2626); }
+    .arrow-red::after { border-top: 20px solid #DC2626; }
+    .arrow-blue { background: linear-gradient(180deg, #60A5FA, #3B82F6); }
+    .arrow-blue::after { border-top: 20px solid #3B82F6; }
+    .concept-arrow-label { color: #FFF; font-size: 0.7rem; font-weight: 700; text-align: center; padding: 6px 2px; writing-mode: vertical-rl; text-orientation: mixed; }
+    .concept-vs { font-size: 1.5rem; font-weight: 800; color: #94A3B8; align-self: center; }
+    .concept-base { width: 100%; max-width: 420px; margin: 0 auto; border-top: 2px solid #334155; position: relative; }
+    .concept-base-label { font-size: 0.75rem; color: #64748B; text-align: center; margin-top: 4px; }
+
+    @media (max-width: 600px) {
+      .desk-container { width: 100%; border-radius: 0; border-width: 0; margin-top: 0; padding: 1.5rem 1rem; }
+      .paper-canvas { padding: 1.5rem 1rem; }
+      .bh-tl, .bh-tr, .bh-bl, .bh-br { display: none; }
+      .site-title { font-size: 1.3rem; }
+      .chart-container { height: 380px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="desk-container">
+    <div class="brass-hinge bh-tl"></div>
+    <div class="brass-hinge bh-tr"></div>
+    <div class="brass-hinge bh-bl"></div>
+    <div class="brass-hinge bh-br"></div>
+
+    <div class="paper-canvas">
+      
+      <div class="header-nav">
+        <a href="../" class="back-link">← トップページへ戻る</a>
+        <h1 class="site-title">住宅ローン・資産運用の最適化シミュレーター</h1>
+        <p class="site-desc">住宅ローンの繰上返済と投資継続、どちらが有利かをざっくり試算します。</p>
+      </div>
+
+      <!-- 入力フォーム -->
+      <div id="form-container">
+        
+        <div class="section-title"><span>📝</span> STEP 1: 基本条件（簡易モード）</div>
+        <div class="input-grid">
+          <div class="input-group">
+            <label class="input-label" for="loan-balance">現在のローン残債</label>
+            <div class="input-wrapper">
+              <input type="number" id="loan-balance" class="input-field" value="3000" min="0">
+              <span class="input-unit">万円</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label" for="loan-interest">ローン金利（年利）</label>
+            <div class="input-wrapper">
+              <input type="number" id="loan-interest" class="input-field" value="1.0" step="0.1" min="0">
+              <span class="input-unit">%</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label" for="monthly-payment">毎月返済額</label>
+            <div class="input-wrapper">
+              <input type="number" id="monthly-payment" class="input-field" value="10" min="0">
+              <span class="input-unit">万円</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label" for="monthly-investment">投資に回せる月額</label>
+            <div class="input-wrapper">
+              <input type="number" id="monthly-investment" class="input-field" value="5" min="0">
+              <span class="input-unit">万円</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="input-note">※ボーナス月での返済・投資を想定する場合、年間のボーナス予定額を12で割って月額に上乗せして入力してください。（詳細設定からボーナスごとの個別設定も可能です）</p>
+
+        <div class="detailed-toggle-wrapper">
+          <label class="toggle-label">
+            <input type="checkbox" id="toggle-detailed">
+            <span>詳細設定を開く（STEP 2: 住宅ローン控除や税金の詳細計算）</span>
+          </label>
+          <div class="detailed-settings" id="detailed-settings">
+            <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 16px;">※より現実に近い家計の動きをシミュレーションします。（ボーナス加算は毎年6月・12月として計算）</p>
+            
+            <div style="font-size: 0.95rem; font-weight: 700; color: var(--wood-dark); margin-bottom: 12px; border-bottom: 1px solid #E2E8F0; padding-bottom: 4px;">▼ 住宅ローン控除・税金の設定</div>
+            <div class="input-grid" style="margin-bottom: 24px;">
+              <div class="input-group">
+                <label class="input-label" for="movein-year">入居時期（適用ルールの判定）</label>
+                <div class="input-wrapper">
+                  <select id="movein-year" class="input-field">
+                    <option value="2024">2024年以降（現在）</option>
+                    <option value="2022">2022年〜2023年</option>
+                    <option value="2021">2021年以前</option>
+                  </select>
+                </div>
+              </div>
+              <div class="input-group">
+                <label class="input-label" for="house-type">住宅区分（借入限度額の判定）</label>
+                <div class="input-wrapper">
+                  <select id="house-type" class="input-field">
+                    <option value="zeh">ZEH・省エネ基準適合住宅</option>
+                    <option value="long">長期優良・低炭素住宅</option>
+                    <option value="general">その他の住宅（一般新築）</option>
+                    <option value="used">中古住宅</option>
+                  </select>
+                </div>
+              </div>
+              <div class="input-group">
+                <label class="input-label" for="annual-income">世帯年収の概算（控除上限の目安）</label>
+                <div class="input-wrapper">
+                  <input type="number" id="annual-income" class="input-field" value="600" min="0" step="10">
+                  <span class="input-unit">万円</span>
+                </div>
+                <p style="font-size: 0.75rem; color: #64748B; margin-top: 4px;">※所得税額は、入力された年収から一般的な控除を差し引いた概算値です。</p>
+              </div>
+            </div>
+
+            <div style="font-size: 0.95rem; font-weight: 700; color: var(--wood-dark); margin-bottom: 12px; border-bottom: 1px solid #E2E8F0; padding-bottom: 4px;">▼ ボーナス・NISAの設定</div>
+            <div class="input-grid">
+              <div class="input-group">
+                <label class="input-label" for="bonus-payment">ボーナスから【ローン返済】に回す額（年2回）</label>
+                <div class="input-wrapper">
+                  <input type="number" id="bonus-payment" class="input-field" value="0" min="0" step="1">
+                  <span class="input-unit">万円</span>
+                </div>
+              </div>
+              <div class="input-group">
+                <label class="input-label" for="bonus-investment">ボーナスから【投資】に回す額（年2回）</label>
+                <div class="input-wrapper">
+                  <input type="number" id="bonus-investment" class="input-field" value="0" min="0" step="1">
+                  <span class="input-unit">万円</span>
+                </div>
+              </div>
+              <div class="input-group">
+                <label class="input-label" for="nisa-usage">NISA口座の利用（投資の非課税）</label>
+                <div class="input-wrapper">
+                  <select id="nisa-usage" class="input-field">
+                    <option value="yes">利用する（非課税）</option>
+                    <option value="no">利用しない（約20%課税）</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-container">
+          <button id="btn-calculate" class="btn-calc">シミュレーション実行</button>
+        </div>
+
+      </div>
+
+      <!-- 結果エリア -->
+      <div id="result-area" class="result-area">
+        <div class="section-title" style="border-top: 2px solid #E2E8F0; padding-top: 2rem; margin-top: 0;"><span>📊</span> シミュレーション結果</div>
+        <div id="alert-container" style="display:none;"></div>
+        <div id="conclusion-text" class="conclusion-box">
+          <!-- 計算結果文がここに入ります -->
+        </div>
+        <div id="reversal-box" class="reversal-box" style="display:none;"></div>
+
+        <div style="margin-bottom: 16px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 12px 16px;">
+          <p style="font-size: 0.9em; color: #475569; line-height: 1.6; margin-bottom: 12px;">
+            <strong>【グラフの見方】</strong><br>
+            ※背景の黄色い帯：概算の住宅ローン控除期間（初期10〜13年間）<br>
+            ※<span style="color: #2563eb;">青い破線</span>：投資資金をすべて繰上返済に回した場合のローン残高<br>
+            ※<span style="color: #10b981;">緑の破線</span>：完済までは投資を行わず、完済した翌月から浮いた資金（返済額＋投資予定額）をすべて投資に回した場合の推移
+          </p>
+          <div style="text-align: center; border-top: 1px dashed #CBD5E1; padding-top: 16px; margin-top: 16px;">
+            <p style="font-size: 0.85em; font-weight: bold; color: #334155; margin-bottom: 12px;">【追加検証】金利の変動（±0.1%）が与える影響の比較</p>
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+              <button id="btn-rate-up" style="background: #FFF; border: 2px solid #64748B; color: #475569; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s;">
+                🔼 金利を 0.1% 上げる
+              </button>
+              <button id="btn-rate-down" style="background: #FFF; border: 2px solid #64748B; color: #475569; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s;">
+                🔽 金利を 0.1% 下げる
+              </button>
+            </div>
+            <p style="font-size: 0.8em; color: #64748B; margin-top: 8px;">※ボタンを押すと即座に再計算され、グラフと結果が更新されます。</p>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <canvas id="loanChart"></canvas>
+        </div>
+        
+        <p style="font-size: 0.85em; color: #64748B; text-align: right; margin-top: 8px;">※投資利回り7%は、過去のS&P500等の実績をベースにした標準的な期待利回りとして設定しています。</p>
+
+        <div style="margin-top: 16px; padding: 16px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; font-size: 0.85em; color: #475569; line-height: 1.7;">
+          <p style="font-weight: bold; color: #334155; margin-bottom: 8px;">※シミュレーションにおける「住宅ローン控除（還付金）」の計算ルール</p>
+          <ul style="padding-left: 1.5rem;">
+            <li style="margin-bottom: 4px;"><strong>投資継続プラン：</strong> 受け取った還付金は、すべて「投資（資産運用）」に回して複利で増やす前提で計算しています。</li>
+            <li><strong>繰上返済プラン：</strong> 受け取った還付金は、すべて「ローンの繰り上げ返済（元本削減）」に追加で充てて、さらに早く借金を減らす前提で計算しています。</li>
+          </ul>
+        </div>
+
+        <div style="margin-top: 32px; padding: 20px; background: #FDFBF7; border: 2px solid #E2E8F0; border-radius: 8px; text-align: center;">
+          <h3 style="font-size: 1.1rem; color: #1E0F05; margin-bottom: 8px;">📊 【応用検証】実際の投資信託データを用いたシミュレーション</h3>
+          <p style="font-size: 0.9em; color: #475569; margin-bottom: 16px;">
+            本ツールでは目安として年利7%の固定値を使用しましたが、実際の市場（全世界株式やS&P500など）の過去データに基づいた、より詳細な検証も可能です。ご自身の投資プランの構築にお役立てください。
+          </p>
+          <a href="../nisa/index.html" style="display: inline-block; background: #4A2B15; color: #FFF; text-decoration: none; font-weight: bold; padding: 12px 24px; border-radius: 6px; box-shadow: 0 4px 6px rgba(30,15,5,0.2); transition: 0.2s;">
+            👉 新NISAシミュレーターで具体的な銘柄を検証する
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-nav">
+        <a href="javascript:void(0)" onclick="openModal('modal-info')">運営者情報</a>
+        <a href="javascript:void(0)" onclick="openModal('modal-terms')">利用規約・免責事項</a>
+        <a href="javascript:void(0)" onclick="openModal('modal-privacy')">プライバシーポリシー</a>
+        <a href="javascript:void(0)" onclick="openModal('modal-contact')">お問い合わせ</a>
+      </div>
+      <p style="margin-bottom: 8px;"><strong>ツール作成個人研究室</strong></p>
+      <p>資産運用を検討する方が、比較検討しやすいようシミュレーションツールを作成・公開しています。</p>
+      <p style="margin-top: 12px; font-size: 0.85em;">※ 本シミュレーションは入力データに基づいた参考値であり、将来の運用成果を保証するものではありません。<br>※ 当サイトはプロモーション（広告）を含みます。</p>
+      <p class="footer-copy">© 2026 ツール作成個人研究室</p>
+    </div>
+  </footer>
+
+  <!-- 各種モーダル -->
+  <div id="modal-info" class="modal-overlay" onclick="closeModal(event, 'modal-info')">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal(event, 'modal-info')">×</button>
+      <h2 class="modal-title">運営者情報</h2>
+      <div class="modal-content">
+        <h3>運営者名</h3>
+        <p>ツール作成個人研究室</p>
+        <h3>活動内容</h3>
+        <p>資産運用を検討する方が、比較検討しやすいようシミュレーションツールを作成・公開しています。</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-terms" class="modal-overlay" onclick="closeModal(event, 'modal-terms')">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal(event, 'modal-terms')">×</button>
+      <h2 class="modal-title">利用規約・免責事項</h2>
+      <div class="modal-content">
+        <h3>免責事項</h3>
+        <ul>
+          <li>本シミュレーションは入力データに基づいた参考値であり、将来の運用成果を保証するものではありません。</li>
+          <li>投資判断は自己責任で行ってください。当サイト利用による損害について運営者は一切の責任を負いません。</li>
+        </ul>
+        <h3>利用規約</h3>
+        <ul>
+          <li>本サービスの提供内容は、予告なく変更または中断される場合があります。</li>
+          <li>当サイトの情報の無断転載、プログラムの不正利用、その他ツールやサイト運営を妨害する行為を固く禁止します。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-privacy" class="modal-overlay" onclick="closeModal(event, 'modal-privacy')">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal(event, 'modal-privacy')">×</button>
+      <h2 class="modal-title">プライバシーポリシー</h2>
+      <div class="modal-content">
+        <h3>アクセス解析と広告配信について</h3>
+        <p>当サイトではGoogle AdSenseやGoogle Analyticsを利用しており、クッキー（Cookie）を通じてトラフィックデータを収集する場合があります。このデータは匿名で収集されており、個人を特定するものではありません。ブラウザの設定でCookieを無効にすることで収集を拒否することが可能です。</p>
+        <h3>個人情報の管理</h3>
+        <p>お問い合わせ等で取得した個人情報は、ご本人への回答・連絡以外の目的で使用しません。法令に基づく場合を除き、事前の同意なく第三者に開示・提供することはありません。</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-explain" class="modal-overlay" onclick="closeModal(event, 'modal-explain')">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal(event, 'modal-explain')">×</button>
+      <h2 class="modal-title">繰り上げ返済と投資、それぞれの「本当のメリット」</h2>
+      <div class="modal-content">
+        <p style="font-size: 0.95rem; color: #475569; margin-bottom: 24px; line-height: 1.6;">数学的な損得では投資が有利になりやすいですが、どちらを選ぶかは「人生の安心感をどこに置くか」で決まります。</p>
+        
+        <div style="background: #FEF2F2; border-left: 4px solid #EF4444; padding: 16px; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
+          <h3 style="color: #DC2626; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px;">メリットA（繰り上げ返済）：<br>【無借金の心理的安心感】</h3>
+          <p style="font-size: 0.9rem; color: #334155; line-height: 1.6; margin: 0;">実際の借金が確実に減っていくため、「毎月の返済プレッシャー」から早く解放されます。投資のような元本割れのリスクもなく、精神的な平穏を早く得られるのが最大の魅力です。</p>
+        </div>
+
+        <div style="background: #EFF6FF; border-left: 4px solid #3B82F6; padding: 16px; border-radius: 0 8px 8px 0;">
+          <h3 style="color: #2563EB; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px;">メリットB（投資継続）：<br>【手元資金（流動性）のゆとり】</h3>
+          <p style="font-size: 0.9rem; color: #334155; line-height: 1.6; margin: 0;">教育費の増加や急な病気など、緊急でまとまった現金が必要になった際、投資信託などは一部を売却するだけですぐに対応できます。借金自体は残りますが、いざという時の「選択肢」を多く持てるのが強みです。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="modal-contact" class="modal-overlay" onclick="closeModal(event, 'modal-contact')">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal(event, 'modal-contact')">×</button>
+      <h2 class="modal-title">お問い合わせ</h2>
+      <div class="modal-content">
+        <p>当サイトに関するご意見・ご質問・不具合報告がありましたら、以下のフォームよりご連絡ください。</p>
+        <p>現在、個人運営のため返信に時間をいただく場合があります。</p>
+        <p>内容によっては回答できない場合がありますのでご了承ください。</p>
+        <p>返信が必要な内容については、確認後できる範囲で対応いたします。</p>
+        
+        <div style="text-align: center; margin-top: 24px;">
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSfXhEGP-qnCSzl3DimTrvZgx8mErYJ6LkWSd-lUwiHKl2DbjQ/viewform?usp=publish-editor" 
+             target="_blank" 
+             rel="noopener noreferrer" 
+             style="display: inline-block; background: linear-gradient(90deg, #7C3AED, #6366F1); color: #FFF; text-decoration: none; font-weight: bold; padding: 14px 28px; border-radius: 8px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); transition: 0.3s;"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(99, 102, 241, 0.4)';"
+             onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 12px rgba(99, 102, 241, 0.3)';"
+          >
+            📩 お問い合わせフォームはこちら
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(e, id) {
+      document.getElementById(id).classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // 詳細モード トグル
+    const toggleDetailed = document.getElementById('toggle-detailed');
+    const detailedSettings = document.getElementById('detailed-settings');
+    toggleDetailed.addEventListener('change', (e) => {
+      detailedSettings.style.display = e.target.checked ? 'block' : 'none';
+    });
+
+    // Chart.js インスタンス保持用
+    let myChart = null;
+
+    // ハイライト描画カスタムプラグイン
+    const deductionHighlightPlugin = {
+      id: 'deductionHighlight',
+      beforeDraw: (chart) => {
+        const ctx = chart.ctx;
+        const xAxis = chart.scales.x;
+        const yAxis = chart.scales.y;
+        
+        const maxX = Math.min(13, xAxis.max || 13);
+        
+        if (maxX > 0) {
+          const startX = xAxis.getPixelForValue(0);
+          const endX = xAxis.getPixelForValue(maxX);
+          
+          ctx.save();
+          ctx.fillStyle = 'rgba(252, 211, 77, 0.2)'; 
+          ctx.fillRect(startX, yAxis.top, endX - startX, yAxis.bottom - yAxis.top);
+          ctx.restore();
+        }
+      }
+    };
+
+    Chart.register(deductionHighlightPlugin);
+
+    // 計算ロジック
+    function runSimulation() {
+      // 詳細モード判定
+      const isDetailedMode = document.getElementById('toggle-detailed').checked;
+
+      // 基本入力値取得
+      let loanBalance = parseFloat(document.getElementById('loan-balance').value) || 0;
+      let loanInterest = parseFloat(document.getElementById('loan-interest').value) || 0;
+      let monthlyPayment = parseFloat(document.getElementById('monthly-payment').value) || 0;
+      let monthlyInv = parseFloat(document.getElementById('monthly-investment').value) || 0;
+
+      // エラーチェック
+      if (loanBalance <= 0 || monthlyPayment <= 0) {
+        alert("ローン残債と毎月返済額は0より大きい数値を入力してください。");
+        return;
+      }
+
+      // 詳細パラメータの初期化
+      let bonusPayment = 0;
+      let bonusInvestment = 0;
+      let nisaUsage = 'yes';
+      let deductionRate = 0;
+      let deductionYears = 0;
+      let maxLoanLimit = 0;
+      let maxTaxReturn = 0;
+
+      if (isDetailedMode) {
+        let moveinYear = document.getElementById('movein-year').value;
+        let houseType = document.getElementById('house-type').value;
+        let annualIncome = parseFloat(document.getElementById('annual-income').value) || 0;
+        
+        bonusPayment = parseFloat(document.getElementById('bonus-payment').value) || 0;
+        bonusInvestment = parseFloat(document.getElementById('bonus-investment').value) || 0;
+        nisaUsage = document.getElementById('nisa-usage').value;
+
+        deductionRate = (moveinYear === '2021') ? 0.01 : 0.007;
+        deductionYears = (moveinYear === '2021' || houseType === 'used') ? 10 : 13;
+        
+        if (moveinYear === '2024') {
+          if (houseType === 'long') maxLoanLimit = 4500;
+          else if (houseType === 'zeh') maxLoanLimit = 3500;
+          else if (houseType === 'general' || houseType === 'used') maxLoanLimit = 2000;
+        } else if (moveinYear === '2022') {
+          if (houseType === 'long') maxLoanLimit = 5000;
+          else if (houseType === 'zeh') maxLoanLimit = 4500;
+          else if (houseType === 'general') maxLoanLimit = 3000;
+          else if (houseType === 'used') maxLoanLimit = 2000;
+        } else {
+          maxLoanLimit = 4000;
+        }
+        maxLoanLimit *= 10000;
+        maxTaxReturn = (annualIncome * 10000 * 0.05) + 97500;
+      }
+
+      // --- シナリオA: 投資継続プラン ---
+      let currentLoanA = loanBalance * 10000;
+      const loanMonthlyRate = (loanInterest / 100) / 12;
+      let currentPaymentA = monthlyPayment * 10000;
+      let currentInvA = 0;
+      const invMonthlyRate = 0.07 / 12;
+      const monthlyInvYen = monthlyInv * 10000;
+      let totalInvPrincipalA = 0;
+
+      // --- シナリオB: 繰上返済優先プラン ---
+      let currentLoanB = loanBalance * 10000;
+      let currentPaymentB = (monthlyPayment + monthlyInv) * 10000;
+      let currentInvB = 0;
+      let totalInvPrincipalB = 0;
+
+      let loanDataA = [{ x: 0, y: loanBalance }];
+      let invDataA = [{ x: 0, y: 0 }];
+      let loanDataB = [{ x: 0, y: loanBalance }];
+      let invDataB = [{ x: 0, y: 0 }];
+
+      let totalTaxReturnA = 0;
+      let totalTaxReturnB = 0;
+      let nisaSavedA = 0;
+      let nisaDeductedA = 0;
+
+      let months = 0;
+      let monthsBFinish = 0;
+      let monthsAFinish = 0;
+      let intersectionYA = 0;
+      let netAssetHistory = [];
+
+      while (currentLoanA > 0 && months < 420) {
+        months++;
+        let currentBonusPayment = (months % 12 === 6 || months % 12 === 0) ? bonusPayment * 10000 : 0;
+        let currentBonusInvestment = (months % 12 === 6 || months % 12 === 0) ? bonusInvestment * 10000 : 0;
+
+        // プランA
+        let interestA = currentLoanA * loanMonthlyRate;
+        let principalA = (currentPaymentA + currentBonusPayment) - interestA;
+        if (principalA <= 0) {
+          alert("現在の毎月返済額では利息を上回れないため、ローンが減少しません。");
+          return;
+        }
+        currentLoanA = Math.max(0, currentLoanA - principalA);
+        currentInvA = currentInvA * (1 + invMonthlyRate) + monthlyInvYen + currentBonusInvestment;
+        totalInvPrincipalA += monthlyInvYen + currentBonusInvestment;
+
+        if (currentInvA >= currentLoanA && monthsAFinish === 0) {
+          monthsAFinish = months;
+          intersectionYA = currentLoanA;
+        }
+
+        // プランB
+        currentInvB = currentInvB * (1 + invMonthlyRate);
+        if (currentLoanB > 0) {
+          let interestB = currentLoanB * loanMonthlyRate;
+          let paymentB = currentPaymentB + currentBonusPayment + currentBonusInvestment;
+          let principalB = paymentB - interestB;
+          if (principalB >= currentLoanB) {
+            let excess = principalB - currentLoanB;
+            currentLoanB = 0;
+            monthsBFinish = months;
+            currentInvB += excess;
+            totalInvPrincipalB += excess;
+          } else {
+            currentLoanB -= principalB;
+          }
+        } else {
+          let paymentB = currentPaymentB + currentBonusPayment + currentBonusInvestment;
+          currentInvB += paymentB;
+          totalInvPrincipalB += paymentB;
+        }
+
+        // 住宅ローン控除
+        if (months % 12 === 0) {
+          let year = months / 12;
+          if (year <= deductionYears) {
+            if (currentLoanA > 0) {
+              let eligibleLoanA = Math.min(currentLoanA, maxLoanLimit);
+              let taxReturnA = Math.min(eligibleLoanA * deductionRate, maxTaxReturn);
+              currentInvA += taxReturnA;
+              totalInvPrincipalA += taxReturnA;
+              totalTaxReturnA += taxReturnA;
+            }
+            if (currentLoanB > 0) {
+              let eligibleLoanB = Math.min(currentLoanB, maxLoanLimit);
+              let taxReturnB = Math.min(eligibleLoanB * deductionRate, maxTaxReturn);
+              
+              if (currentLoanB >= taxReturnB) {
+                currentLoanB -= taxReturnB;
+              } else {
+                let excess = taxReturnB - currentLoanB;
+                currentLoanB = 0;
+                if (monthsBFinish === 0) monthsBFinish = months;
+                currentInvB += excess;
+                totalInvPrincipalB += excess;
+              }
+              totalTaxReturnB += taxReturnB;
+            }
+          }
+        }
+
+        if (months % 12 === 0) {
+          const currentYear = months / 12;
+          loanDataA.push({ x: currentYear, y: Math.round(currentLoanA / 10000) });
+          invDataA.push({ x: currentYear, y: Math.round(currentInvA / 10000) });
+          loanDataB.push({ x: currentYear, y: Math.round(currentLoanB / 10000) });
+          invDataB.push({ x: currentYear, y: Math.round(currentInvB / 10000) });
+          netAssetHistory.push({ year: currentYear, netA: Math.round((currentInvA - currentLoanA) / 10000), netB: Math.round((currentInvB - currentLoanB) / 10000) });
+        }
+      }
+
+      if (monthsBFinish === 0) monthsBFinish = months;
+      if (monthsAFinish === 0) {
+        monthsAFinish = months;
+        intersectionYA = 0;
+      }
+
+      // 税金
+      let profitA = currentInvA - totalInvPrincipalA;
+      if (profitA > 0 && nisaUsage === 'no') {
+        let tax = profitA * 0.20315;
+        currentInvA -= tax;
+        nisaDeductedA = tax;
+      } else if (profitA > 0) {
+        nisaSavedA = profitA * 0.20315;
+      }
+      let profitB = currentInvB - totalInvPrincipalB;
+      if (profitB > 0 && nisaUsage === 'no') currentInvB -= profitB * 0.20315;
+
+      const finalYear = parseFloat((months / 12).toFixed(1));
+      if (months % 12 !== 0) {
+        loanDataA.push({ x: finalYear, y: Math.round(currentLoanA / 10000) });
+        invDataA.push({ x: finalYear, y: Math.round(currentInvA / 10000) });
+        loanDataB.push({ x: finalYear, y: Math.round(currentLoanB / 10000) });
+        invDataB.push({ x: finalYear, y: Math.round(currentInvB / 10000) });
+      }
+
+      document.getElementById('result-area').style.display = 'block';
+
+      const yearDebtFreeA = parseFloat((monthsAFinish / 12).toFixed(1));
+      const yearDebtFreeB = parseFloat((monthsBFinish / 12).toFixed(1));
+      const diffDebtFree = Math.abs(yearDebtFreeA - yearDebtFreeB).toFixed(1);
+      const finalInvA = Math.round(currentInvA / 10000);
+      const finalInvB = Math.round(currentInvB / 10000);
+
+      // 警告判定
+      let alertsHtml = '';
+      if (isDetailedMode && deductionYears > 0) {
+        const lostDeduction = totalTaxReturnA - totalTaxReturnB;
+        if (lostDeduction > 10000) {
+          alertsHtml += `<div class="alert-panel"><span class="alert-icon">⚠️</span><div>※注意: 控除期間中の過度な繰り上げ返済により、<strong>${Math.round(lostDeduction).toLocaleString()}円</strong>相当の控除割れが発生する可能性があります</div></div>`;
+        }
+      }
+      if (monthlyInv <= 0) {
+        alertsHtml += `<div class="alert-panel"><span class="alert-icon">⚠️</span><div>※注意: 手元の流動性が枯渇し、突発的な出費時に高金利なローンを借りる失敗事例があります。生活防衛資金は確保してください</div></div>`;
+      }
+      const alertContainer = document.getElementById('alert-container');
+      if (alertsHtml) { alertContainer.innerHTML = alertsHtml; alertContainer.style.display = 'block'; }
+      else { alertContainer.innerHTML = ''; alertContainer.style.display = 'none'; }
+
+      // 逆転ポイント算出
+      let reversalYear = null;
+      for (let i = 0; i < netAssetHistory.length; i++) {
+        if (netAssetHistory[i].netA > netAssetHistory[i].netB) { reversalYear = netAssetHistory[i].year; break; }
+      }
+
+      let conclusionHtml = `<p><strong>【実質無借金になる時期】</strong><br>`;
+      if (parseFloat(yearDebtFreeA) < parseFloat(yearDebtFreeB)) {
+         conclusionHtml += `投資継続プランは約 <strong>${yearDebtFreeA}年</strong>、繰上返済優先プランは約 <strong>${yearDebtFreeB}年</strong> です。<br><span style="color: #b91c1c;">👉 <strong>「投資継続」の方が ${diffDebtFree}年 早く</strong>達成できます。</span></p>`;
+      } else if (parseFloat(yearDebtFreeB) < parseFloat(yearDebtFreeA)) {
+         conclusionHtml += `投資継続プランは約 <strong>${yearDebtFreeA}年</strong>、繰上返済優先プランは約 <strong>${yearDebtFreeB}年</strong> です。<br><span style="color: #059669;">👉 <strong>「繰上返済優先」の方が ${diffDebtFree}年 早く</strong>達成できます。</span></p>`;
+      } else {
+         conclusionHtml += `どちらのプランも約 <strong>${yearDebtFreeA}年</strong> で達成します。</p>`;
+      }
+
+      conclusionHtml += `<p style="margin-top: 12px;"><strong>【最終的な手元資産】</strong>（${finalYear}年経過時）<br>`;
+      if (finalInvA > finalInvB) {
+        conclusionHtml += `投資継続: <strong>${finalInvA.toLocaleString()}万円</strong>、繰上返済: <strong>${finalInvB.toLocaleString()}万円</strong><br><span style="color: #b91c1c;">👉 <strong>「投資継続」の方が ${(finalInvA - finalInvB).toLocaleString()}万円 多く</strong>残ります。</span></p>`;
+      } else {
+        conclusionHtml += `投資継続: <strong>${finalInvA.toLocaleString()}万円</strong>、繰上返済: <strong>${finalInvB.toLocaleString()}万円</strong><br><span style="color: #059669;">👉 <strong>「繰上返済優先」の方が ${(finalInvB - finalInvA).toLocaleString()}万円 多く</strong>残ります。</span></p>`;
+      }
+
+      document.getElementById('conclusion-text').innerHTML = conclusionHtml;
+
+      // シミュレーションの結論表示
+      const reversalBox = document.getElementById('reversal-box');
+      reversalBox.innerHTML = `
+        <div style="color:#000000; font-weight:800; font-size:1.1rem; margin-bottom:12px;">【なぜローンを返すより、投資の方がお得になりやすいのか】</div>
+        <div style="font-size:0.95rem; line-height:1.7; color:#000000; margin-bottom:20px;">
+          借金を減らすことは、確実に「ローン金利分の利息支払い」を免除されることを意味します。つまり、金利 <strong>${loanInterest}%</strong> のローンを繰り上げ返済することは、「絶対に損をしない利回り <strong>${loanInterest}%</strong> の金融商品に投資したのと同じ効果」を生みます。<br><br>
+          したがって、ローン金利よりも高い利回りで運用できるのであれば、数学的には最初から最後まで投資を継続した方がトータルでの資産は大きくなります。
+        </div>
+        <button class="btn-explain" style="display:flex; align-items:center; justify-content:center; width:100%; background:#2563EB; color:#FFF; font-weight:700; padding:14px; border-radius:8px; border:none; cursor:pointer; font-size:0.95rem; box-shadow:0 4px 6px rgba(37, 99, 235, 0.2);" onclick="openModal('modal-explain')" onmouseover="this.style.background='#1D4ED8'; this.style.transform='translateY(-1px)';" onmouseout="this.style.background='#2563EB'; this.style.transform='none';">
+          <span style="margin-right:6px; font-size:1.1rem;">💡</span>
+          比較のポイント：実際の借金を減らす「安心感」か、手元資金の「ゆとり」か
+        </button>
+      `;
+      reversalBox.style.display = 'block';
+
+      const ctx = document.getElementById('loanChart').getContext('2d');
+      if (myChart) myChart.destroy();
+
+      myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          datasets: [
+            { label: 'ローン残高:投資継続', data: loanDataA, borderColor: '#b91c1c', borderWidth: 2, pointRadius: 2, tension: 0.1 },
+            { label: 'ローン残高:繰上返済', data: loanDataB, borderColor: '#2563eb', borderDash: [5, 5], borderWidth: 2, pointRadius: 2, tension: 0.1 },
+            { label: '投資資産:投資継続', data: invDataA, borderColor: '#059669', borderWidth: 2, pointRadius: 2, tension: 0.1 },
+            { label: '投資資産:繰上返済後', data: invDataB, borderColor: '#10b981', borderDash: [5, 5], borderWidth: 2, pointRadius: 2, tension: 0.1 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            annotation: (() => {
+              const dfa = parseFloat(yearDebtFreeA);
+              const dfb = parseFloat(yearDebtFreeB);
+              const shortenYrs = (dfb - dfa).toFixed(1);
+              const showDim = parseFloat(shortenYrs) > 0 && dfa > 0 && monthsAFinish > 0;
+              const allY = [...loanDataA, ...invDataA, ...loanDataB, ...invDataB].map(d => d.y);
+              const dimY = Math.max(...allY) * 0.93;
+              return {
+                annotations: {
+                  intersectionPoint: {
+                    type: 'point', xValue: dfa, yValue: Math.round(intersectionYA / 10000),
+                    backgroundColor: '#ca8a04', borderColor: '#FFF', borderWidth: 2, radius: 6,
+                    display: dfa > 0 && monthsAFinish > 0
+                  },
+                  intersectionLabel: {
+                    type: 'label', xValue: dfa, yValue: Math.round(intersectionYA / 10000),
+                    backgroundColor: 'rgba(202, 138, 4, 0.95)', color: '#fff',
+                    content: ['✔ 実質無借金達成'], font: { size: 12, weight: 'bold' },
+                    padding: 6, borderRadius: 4, position: 'center', yAdjust: -30,
+                    display: dfa > 0 && monthsAFinish > 0
+                  },
+                  dimLineLeft: {
+                    type: 'line', xMin: dfa, xMax: dfa, yMin: 0, yMax: dimY,
+                    borderColor: '#B45309', borderDash: [4, 4], borderWidth: 1.5, display: showDim
+                  },
+                  dimLineRight: {
+                    type: 'line', xMin: dfb, xMax: dfb, yMin: 0, yMax: dimY,
+                    borderColor: '#B45309', borderDash: [4, 4], borderWidth: 1.5, display: showDim
+                  },
+                  dimLineTop: {
+                    type: 'line', xMin: dfa, xMax: dfb, yMin: dimY, yMax: dimY,
+                    borderColor: '#1A202C', borderWidth: 2.5, display: showDim,
+                    arrowHeads: { start: { display: true, length: 12, width: 6 }, end: { display: true, length: 12, width: 6 } }
+                  },
+                  dimLabel: {
+                    type: 'label', xValue: (dfa + dfb) / 2, yValue: dimY,
+                    backgroundColor: '#1A202C', color: '#FFFFFF',
+                    content: [`${shortenYrs}年 短縮！`], font: { size: 16, weight: 'bold' },
+                    padding: { top: 6, bottom: 6, left: 14, right: 14 }, borderRadius: 6,
+                    yAdjust: -24, display: showDim
+                  }
+                }
+              };
+            })()
+          },
+          scales: {
+            x: { type: 'linear', title: { display: true, text: '経過年数' } },
+            y: { title: { display: true, text: '金額 (万円)' } }
+          }
+        }
+      });
+
+      document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    document.getElementById('btn-calculate').addEventListener('click', function() {
+      const btn = this;
+      const originalText = btn.innerText;
+      btn.disabled = true;
+      btn.innerText = '計算中...';
+      setTimeout(() => {
+        try { runSimulation(); } 
+        finally { btn.disabled = false; btn.innerText = originalText; }
+      }, 500);
+    });
+
+    document.getElementById('btn-rate-up').addEventListener('click', () => {
+      let currentRate = parseFloat(document.getElementById('loan-interest').value) || 0;
+      let newRate = (Math.round(currentRate * 10) + 1) / 10;
+      document.getElementById('loan-interest').value = newRate.toFixed(1);
+      runSimulation();
+    });
+    document.getElementById('btn-rate-down').addEventListener('click', () => {
+      let currentRate = parseFloat(document.getElementById('loan-interest').value) || 0;
+      let newRate = Math.max(0, (Math.round(currentRate * 10) - 1) / 10);
+      document.getElementById('loan-interest').value = newRate.toFixed(1);
+      runSimulation();
+    });
+  </script>
+</body>
+</html>
