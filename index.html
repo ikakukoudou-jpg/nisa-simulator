@@ -257,6 +257,63 @@
       .lab-card { padding: 1.4rem 1.2rem; }
       .lab-card-title { font-size: 1.15rem; }
     }
+    /* モーダル表示用スタイル */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10000; opacity: 0; visibility: hidden;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal-content-box {
+      background: var(--paper);
+      width: 90%; max-width: 600px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 2.5rem;
+      border-radius: 12px;
+      position: relative;
+      border: 4px solid var(--wood-dark);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+    .modal-overlay.active .modal-content-box { transform: translateY(0); }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: none; border: none; font-size: 1.5rem;
+      color: var(--text-muted); cursor: pointer; line-height: 1;
+    }
+    .modal-title { font-size: 1.25rem; font-weight: 800; color: var(--wood-dark); margin-bottom: 1.5rem; border-bottom: 2px solid var(--accent-gray); padding-bottom: 0.5rem; }
+    .modal-body p { font-size: 0.95rem; color: var(--text-main); line-height: 1.7; margin-bottom: 1rem; }
+    .modal-body ul { margin-bottom: 1rem; padding-left: 1.5rem; font-size: 0.95rem; }
+    .modal-body li { margin-bottom: 0.5rem; }
+    .btn-contact-modal {
+      display: inline-block; background: linear-gradient(90deg, #7C3AED, #6366F1);
+      color: #FFF; text-decoration: none; font-weight: bold;
+      padding: 12px 24px; border-radius: 8px; transition: 0.3s;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+      margin-top: 1rem;
+    }
+    .btn-contact-modal:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); }
+
+    .footer-nav {
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .footer-nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .footer-nav a:hover { color: var(--wood-border); text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -313,11 +370,73 @@
   </div>
 
   <footer class="site-footer">
+    <div class="footer-nav">
+      <a href="javascript:void(0)" onclick="openModal('modal-operator')">[ 運営者情報 ]</a>
+      <a href="javascript:void(0)" onclick="openModal('modal-privacy')">[ プライバシーポリシー・免責事項 ]</a>
+      <a href="javascript:void(0)" onclick="openModal('modal-contact')">[ お問い合わせ ]</a>
+    </div>
     <p><strong>ツール作成個人研究室</strong></p>
     <p>実験的なツールも順次公開予定です。</p>
     <p style="margin-top: 6px; font-size: 0.85em;">※当サイトは広告を含みます</p>
     <p style="margin-top: 4px;">© 2026 ツール作成個人研究室</p>
   </footer>
+
+  <!-- モーダルウィンドウ群 -->
+  <div id="modal-operator" class="modal-overlay" onclick="closeModal('modal-operator')">
+    <div class="modal-content-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('modal-operator')">×</button>
+      <h2 class="modal-title">運営者情報</h2>
+      <div class="modal-body">
+        <ul style="list-style: none; padding-left: 0;">
+          <li><strong>サイト名：</strong>ツール作成個人研究室</li>
+          <li><strong>運営者：</strong>管理人</li>
+          <li><strong>URL：</strong>https://mytool-lab.com/</li>
+          <li><strong>運営目的：</strong>日常の面倒な計算や手続きを半自動化し、ユーザーのお金と時間の損失を防ぐためのシミュレーションツールの公開・検証。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-privacy" class="modal-overlay" onclick="closeModal('modal-privacy')">
+    <div class="modal-content-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('modal-privacy')">×</button>
+      <h2 class="modal-title">プライバシーポリシー・免責事項</h2>
+      <div class="modal-body">
+        <p><strong>広告の配信について</strong><br>当サイトは第三者配信の広告サービス（Google AdSense等）を利用しています。広告配信事業者はユーザーの興味に応じた広告を表示するためにCookieを使用することがあります。詳細については、<a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">Googleポリシーと規約</a>をご覧ください。</p>
+        <p><strong>アクセス解析ツールについて</strong><br>当サイトではGoogle Analyticsを利用しています。データは匿名で収集されており個人を特定するものではありません。</p>
+        <p><strong>免責事項</strong><br>当サイトのシミュレーションツールは計算上の目安であり、実際の投資成果や手続きの正確性を保証するものではありません。利用によるいかなる損害についても運営者は一切の責任を負いかねます。最終判断は自己責任でお願いします。</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-contact" class="modal-overlay" onclick="closeModal('modal-contact')">
+    <div class="modal-content-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('modal-contact')">×</button>
+      <h2 class="modal-title">お問い合わせ</h2>
+      <div class="modal-body">
+        <p>当サイトに関するご意見・ご質問・不具合報告がありましたら、以下のフォームよりご連絡ください。</p>
+        <p>現在、個人運営のため返信に時間をいただく場合があります。</p>
+        <p>内容によっては回答できない場合がありますのでご了承ください。</p>
+        <p>返信が必要な内容については、確認後できる範囲で対応いたします。</p>
+        <div style="text-align: center;">
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSfXhEGP-qnCSzl3DimTrvZgx8mErYJ6LkWSd-lUwiHKl2DbjQ/viewform?usp=publish-editor" target="_blank" rel="noopener" class="btn-contact-modal">
+            📩 お問い合わせフォームはこちら
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  </script>
 
 </body>
 </html>
