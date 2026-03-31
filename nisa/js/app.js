@@ -704,23 +704,21 @@ function renderHistogramChart(mcResultA, mcResultB) {
         {
           label: `A: ${shortName(mcResultA.fundName)}`,
           data: dataA,
-          backgroundColor: "rgba(99, 102, 241, 0.5)",
+          backgroundColor: "rgba(99, 102, 241, 0.7)",
           borderColor: "rgba(99, 102, 241, 1)",
-          borderWidth: 1,
-          barThickness: 15,
-          maxBarThickness: 20,
-          minBarLength: 2,
+          borderWidth: 0, /* 固定棒幅と隙間要因を完全に排除し、滑らかな分布曲線を描画する設定 */
+          barPercentage: 1.0,
+          categoryPercentage: 1.0,
           order: 2
         },
         {
           label: `B: ${shortName(mcResultB.fundName)}`,
           data: dataB,
-          backgroundColor: "rgba(16, 185, 129, 0.5)",
+          backgroundColor: "rgba(16, 185, 129, 0.7)",
           borderColor: "rgba(16, 185, 129, 1)",
-          borderWidth: 1,
-          barThickness: 15,
-          maxBarThickness: 20,
-          minBarLength: 2,
+          borderWidth: 0, /* 固定棒幅と隙間要因を完全に排除し、滑らかな分布曲線を描画する設定 */
+          barPercentage: 1.0,
+          categoryPercentage: 1.0,
           order: 1
         }
       ]

@@ -120,30 +120,47 @@ function runMonteCarloSimulation({ fund, initialInvestment, monthlyContribution,
     };
   }
 
-  // ヒストグラム用の生成処理
-  const getPercentile = (percent) => finalValues[Math.max(0, Math.min(trials - 1, Math.floor((percent / 100) * trials)))];
-  const minVal = getPercentile(1);
-  const maxVal = getPercentile(99);
-  const binCount = 11;
-  const binWidth = (maxVal - minVal) / binCount || 1;
+  // ヒストグラム用の生成処理（完全にすべての外れ値を維持し、高解像度のビンを設定）
+  const minVal = finalValues[0];
+  const maxVal = finalValues[trials - 1];
+
+  // ビン幅を動的に決定。ボリュームゾーン（Q1〜Q3）を美しく描画するために基準スケールを算出
+  const q1 = finalValues[Math.floor(trials * 0.25)];
+  const q3 = finalValues[Math.floor(trials * 0.75)];
+  let binWidth = 1000000; // デフォルト100万円幅
+
+  if (q3 > q1) {
+    binWidth = (q3 - q1) / 50; // ボリュームゾーンを約50分割する解像度
+  }
+  
+  // 最大最小の幅に対しても最低150分割を保証する
+  const minRequiredBins = 150;
+  const overallWidth = (maxVal - minVal) / minRequiredBins;
+  
+  // より細かく、高解像度になる方のビン幅を採用
+  binWidth = Math.min(binWidth, overallWidth);
+  // ただし細かすぎると描画に負荷がかかるため下限（1万円）を設定
+  binWidth = Math.max(10000, binWidth);
+
+  // カットせずに全ての領域をカバーするビンの総数を計算
+  const binCount = Math.ceil((maxVal - minVal) / binWidth) || 1;
 
   const histogram = Array(binCount).fill(0);
   const binLabels = [];
   
   for (let i = 0; i < binCount; i++) {
-    binLabels.push((minVal + i * binWidth)); 
+    binLabels.push(minVal + i * binWidth); 
   }
 
   for (let i = 0; i < trials; i++) {
     const val = finalValues[i];
-    if (val >= minVal && val <= maxVal) {
-      const binIndex = Math.floor((val - minVal) / binWidth);
-      if (binIndex >= 0 && binIndex < binCount) {
-        histogram[binIndex]++;
-      } else if (binIndex === binCount) {
-        histogram[binCount - 1]++;
-      }
+    let binIndex = Math.floor((val - minVal) / binWidth);
+    if (binIndex >= binCount) {
+      binIndex = binCount - 1; // maxValは最後のビンに収納
+    } else if (binIndex < 0) {
+      binIndex = 0;
     }
+    histogram[binIndex]++;
   }
 
   return {
