@@ -542,9 +542,14 @@
       document.getElementById(id).classList.add('active');
       document.body.style.overflow = 'hidden';
     }
-    function closeModal(e, id) {
-      document.getElementById(id).classList.remove('active');
-      document.body.style.overflow = '';
+    function closeModal(arg1, arg2) {
+      // 第一引数が文字列ならそれをIDとし、そうでなければ第二引数をIDとする（イベントオブジェクトとの互換性）
+      const id = (typeof arg1 === 'string') ? arg1 : arg2;
+      const modal = document.getElementById(id);
+      if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
     }
 
     // 詳細モード トグル
@@ -929,6 +934,20 @@
       let newRate = Math.max(0, (Math.round(currentRate * 10) - 1) / 10);
       document.getElementById('loan-interest').value = newRate.toFixed(1);
       runSimulation();
+    });
+
+    // ESCキーでモーダルを閉じる
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        // このツールで使用しているすべてのモーダルIDを対象にする
+        ['modal-info', 'modal-terms', 'modal-privacy', 'modal-explain', 'modal-contact'].forEach(id => {
+          const modal = document.getElementById(id);
+          // モーダルが存在し、かつ表示状態（activeクラスを持っている）場合のみ閉じる
+          if (modal && modal.classList.contains('active')) {
+            closeModal(id);
+          }
+        });
+      }
     });
   </script>
 </body>

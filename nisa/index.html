@@ -349,13 +349,11 @@
       </details>
 
       <!-- フッターリンク群 -->
-      <div class="footer-links">
-        <a href="../">🏠 ホームへ戻る</a>
-        <a href="about.html">運営者情報</a>
-        <a href="terms.html">利用規約</a>
-        <a href="disclaimer.html">免責事項</a>
-        <a href="privacy.html">プライバシーポリシー</a>
-        <a href="javascript:void(0)" onclick="openModal('modal-contact')">お問い合わせ</a>
+      <div class="footer-links" style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 20px;">
+        <a href="../" style="color: #475569; text-decoration: none; font-size: 0.9rem;">🏠 ホームへ戻る</a>
+        <span onclick="openModal('modal-operator')" style="color: #475569; font-size: 0.9rem; cursor: pointer; text-decoration: underline;">運営者情報</span>
+        <span onclick="openModal('modal-privacy')" style="color: #475569; font-size: 0.9rem; cursor: pointer; text-decoration: underline;">プライバシーポリシー・免責事項</span>
+        <span onclick="openModal('modal-contact')" style="color: #475569; font-size: 0.9rem; cursor: pointer; text-decoration: underline;">お問い合わせ</span>
       </div>
 
       <!-- コピーライト -->
@@ -369,54 +367,88 @@
   </div>
 
   <style>
-    /* お問い合わせモーダル用スタイル */
+    /* モーダル用スタイル */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(15, 23, 42, 0.6);
       display: flex; align-items: center; justify-content: center;
-      z-index: 10000; opacity: 0; pointer-events: none;
-      transition: opacity 0.3s ease;
+      z-index: 10000; opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
       backdrop-filter: blur(4px);
     }
-    .modal-overlay.active { opacity: 1; pointer-events: auto; }
-    .modal-box {
-      background: #ffffff; width: 90%; max-width: 500px;
+    .modal-overlay.active { opacity: 1; visibility: visible; pointer-events: auto; }
+    .modal-content {
+      background: #ffffff; width: 90%; max-width: 600px;
+      max-height: 85vh; overflow-y: auto;
       padding: 32px; border-radius: 16px; position: relative;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
       transform: translateY(20px); transition: transform 0.3s ease;
     }
-    .modal-overlay.active .modal-box { transform: translateY(0); }
+    .modal-overlay.active .modal-content { transform: translateY(0); }
     .modal-close {
       position: absolute; top: 16px; right: 16px; background: none; border: none;
-      font-size: 24px; color: #94a3b8; cursor: pointer; line-height: 1;
+      font-size: 24px; color: #94a3b8; cursor: pointer; line-height: 1; padding: 4px;
     }
-    .modal-title { font-size: 1.25rem; font-weight: 800; color: #1e293b; margin-bottom: 24px; text-align: center; }
-    .modal-content p { font-size: 0.95rem; color: #475569; line-height: 1.7; margin-bottom: 12px; text-align: left; }
-    .btn-contact-form {
+    .modal-close:hover { color: #1e293b; }
+    .modal-title { font-size: 1.25rem; font-weight: 800; color: #1e293b; margin-top: 0; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+    .modal-body p { font-size: 0.95rem; color: #475569; line-height: 1.7; margin-bottom: 12px; text-align: left; }
+    .modal-body ul { font-size: 0.95rem; color: #475569; line-height: 1.7; margin-bottom: 16px; padding-left: 20px; }
+    .modal-body li { margin-bottom: 8px; }
+    .btn-contact-modal {
       display: inline-block; background: linear-gradient(90deg, #7C3AED, #6366F1);
       color: #FFF; text-decoration: none; font-weight: bold;
       padding: 14px 28px; border-radius: 8px; transition: 0.3s;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); text-align: center;
     }
-    .btn-contact-form:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); }
+    .btn-contact-modal:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); color: #FFF; }
   </style>
 
+  <!-- 運営者情報モーダル -->
+  <div id="modal-operator" class="modal-overlay">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('modal-operator')">×</button>
+      <h2 class="modal-title">運営者情報</h2>
+      <div class="modal-body">
+        <ul>
+          <li><strong>サイト名：</strong>ツール作成個人研究室</li>
+          <li><strong>運営者：</strong>管理人</li>
+          <li><strong>URL：</strong><a href="https://mytool-lab.com/" target="_blank" rel="noopener noreferrer">https://mytool-lab.com/</a></li>
+          <li><strong>運営目的：</strong>新NISA等での長期積立を検討する方が、将来の資産推移を比較・確認しやすい情報を無償提供すること</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- プライバシーポリシー・免責事項モーダル -->
+  <div id="modal-privacy" class="modal-overlay">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('modal-privacy')">×</button>
+      <h2 class="modal-title">プライバシーポリシー・免責事項</h2>
+      <div class="modal-body">
+        <p><strong>アクセス解析ツールについて</strong><br>
+        当サイトでは、Googleによるアクセス解析ツール「Google Analytics」等を利用しています。これらはトラフィックデータの収集のためにCookieを使用しておりますが、匿名で収集されており、個人を特定するものではありません。</p>
+        <p><strong>広告の配信について</strong><br>
+        当サイトは、Google AdSense等の第三者配信の広告サービスを利用する場合があります。広告配信事業者は、ユーザーの興味に応じた広告を表示するためにCookieを使用することがあります。</p>
+        <p><strong>免責事項</strong><br>
+        本シミュレーションは一定の計算式と仮定に基づく参考試算であり、実際の運用成果や将来の利益を保証するものではありません。当サイトの利用により生じた損害等について、運営者は一切の責任を負いません。最終的な投資判断は必ず自己責任にてお願いいたします。</p>
+      </div>
+    </div>
+  </div>
+
   <!-- お問い合わせモーダル -->
-  <div id="modal-contact" class="modal-overlay" onclick="closeModal(event, 'modal-contact')">
-    <div class="modal-box" onclick="event.stopPropagation()">
-      <button class="modal-close" onclick="closeModal(event, 'modal-contact')">×</button>
+  <div id="modal-contact" class="modal-overlay">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('modal-contact')">×</button>
       <h2 class="modal-title">お問い合わせ</h2>
-      <div class="modal-content">
+      <div class="modal-body">
         <p>当サイトに関するご意見・ご質問・不具合報告がありましたら、以下のフォームよりご連絡ください。</p>
-        <p>現在、個人運営のため返信に時間をいただく場合があります。</p>
-        <p>内容によっては回答できない場合がありますのでご了承ください。</p>
-        <p>返信が必要な内容については、確認後できる範囲で対応いたします。</p>
+        <p>現在、個人運営のため返信に時間をいただく場合や、内容によっては回答できない場合がありますのでご了承ください。</p>
         
         <div style="text-align: center; margin-top: 24px;">
           <a href="https://docs.google.com/forms/d/e/1FAIpQLSfXhEGP-qnCSzl3DimTrvZgx8mErYJ6LkWSd-lUwiHKl2DbjQ/viewform?usp=publish-editor" 
              target="_blank" 
              rel="noopener noreferrer" 
-             class="btn-contact-form">
+             class="btn-contact-modal">
             📩 お問い合わせフォームはこちら
           </a>
         </div>
@@ -427,13 +459,40 @@
   <!-- スクリプト読み込み（順序重要） -->
   <script>
     function openModal(id) {
-      document.getElementById(id).classList.add('active');
-      document.body.style.overflow = 'hidden';
+      const modal = document.getElementById(id);
+      if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
     }
-    function closeModal(e, id) {
-      document.getElementById(id).classList.remove('active');
-      document.body.style.overflow = '';
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
     }
+
+    // 各モーダルの背景クリックで閉じる処理
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeModal(this.id);
+        }
+      });
+    });
+
+    // ESCキーでモーダルを閉じるイベントリスナー
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        ['modal-operator', 'modal-privacy', 'modal-contact'].forEach(id => {
+          const modal = document.getElementById(id);
+          if (modal && modal.classList.contains('active')) {
+            closeModal(id);
+          }
+        });
+      }
+    });
   </script>
   <script src="js/funds.js"></script>
   <script src="js/simulator.js"></script>

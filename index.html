@@ -315,6 +315,13 @@
     }
     .footer-nav a:hover { color: var(--wood-border); text-decoration: underline; }
   </style>
+
+  <link rel="canonical" href="https://mytool-lab.com/">
+  <meta property="og:title" content="ツール作成個人研究室">
+  <meta property="og:description" content="お金と時間の「見えない損失」を防ぐ、さまざまなシミュレーションツールをご利用いただけます。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mytool-lab.com/">
+  <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXX" crossorigin="anonymous"></script> -->
 </head>
 <body>
 
@@ -371,9 +378,9 @@
 
   <footer class="site-footer">
     <div class="footer-nav">
-      <a href="javascript:void(0)" onclick="openModal('modal-operator')">[ 運営者情報 ]</a>
-      <a href="javascript:void(0)" onclick="openModal('modal-privacy')">[ プライバシーポリシー・免責事項 ]</a>
-      <a href="javascript:void(0)" onclick="openModal('modal-contact')">[ お問い合わせ ]</a>
+      <a href="javascript:void(0)" onclick="openModal('modal-operator')">運営者情報</a>
+      <a href="javascript:void(0)" onclick="openModal('modal-privacy')">プライバシーポリシー・免責事項</a>
+      <a href="javascript:void(0)" onclick="openModal('modal-contact')">お問い合わせ</a>
     </div>
     <p><strong>ツール作成個人研究室</strong></p>
     <p>実験的なツールも順次公開予定です。</p>
@@ -436,6 +443,17 @@
       document.getElementById(id).classList.remove('active');
       document.body.style.overflow = '';
     }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        ['modal-operator', 'modal-privacy', 'modal-contact'].forEach(id => {
+          const modal = document.getElementById(id);
+          if (modal && modal.classList.contains('active')) {
+            closeModal(id);
+          }
+        });
+      }
+    });
   </script>
 
 </body>
