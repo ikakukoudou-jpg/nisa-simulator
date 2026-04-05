@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="転出届の遅れによる「最大5万円の過料」や、解約忘れによる「無駄な二重家賃」。知らない間に払ってしまう引越しの損失を、予定日からの逆算で防ぐツールです。">
+  <title>引越しの「期限切れ」による損失を防ぐ | 引越し逆算スケジュール・コンシェルジュ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="canonical" href="https://mytool-lab.com/move/">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://mytool-lab.com/move/">
+  <meta property="og:title" content="引越しの「期限切れ」による損失を防ぐ | 引越し逆算スケジュール・コンシェルジュ">
+  <meta property="og:description" content="転出届の遅れによる「最大5万円の過料」や、解約忘れによる「無駄な二重家賃」。知らない間に払ってしまう引越しの損失を、予定日からの逆算で防ぐツールです。">
+  <meta property="og:image" content="https://mytool-lab.com/move/ogp-move.png">
+  <meta property="og:site_name" content="ツール作成個人研究室">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://mytool-lab.com/move/ogp-move.png">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5148634839708031"
+     crossorigin="anonymous"></script>
+
+  <!-- Flatpickr CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      /* 参考画像（木製製図机と白い壁）に基づくカラーパレット */
+      --wall-bg: #FCFDFB;
+      --desk-light: #F6E6D3;
+      --desk-dark: #E6CEB3;
+      --wood-border: #4E3624;
+      --wood-dark: #322215;
+      --brass: #D4AF67;
+      --brass-dark: #9B7B3F;
+      --paper: #FFFFFF;
+      --text-main: #2C2C2C;
+      --text-muted: #736B63;
+      --accent-gray: #E8E8E8;
+      
+      --shadow-desk: 0 16px 40px rgba(46, 32, 21, 0.15);
+      --shadow-card: 0 4px 12px rgba(46, 32, 21, 0.08);
+      --shadow-hover: 0 12px 24px rgba(46, 32, 21, 0.16);
+      
+      --transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', 'Noto Sans JP', sans-serif;
+      background-color: var(--wall-bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+      background-image: linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    .home-link-container {
+      width: 90%;
+      max-width: 800px;
+      margin: 2rem auto 0;
+      padding: 0 2.5rem;
+    }
+
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: var(--transition);
+      background: var(--paper);
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 2px solid var(--accent-gray);
+      box-shadow: var(--shadow-card);
+    }
+
+    .home-link:hover {
+      color: var(--wood-dark);
+      border-color: var(--wood-border);
+    }
+
+    .desk-container {
+      width: 90%;
+      max-width: 800px;
+      margin: 1.5rem auto 2rem;
+      background: linear-gradient(145deg, var(--desk-light) 0%, var(--desk-dark) 100%);
+      border: 8px solid var(--wood-border);
+      border-radius: 6px;
+      box-shadow: var(--shadow-desk), inset 0 0 40px rgba(0,0,0,0.04);
+      padding: 3rem 2.5rem 4rem;
+      position: relative;
+    }
+
+    .brass-hinge {
+      position: absolute;
+      width: 12px; height: 12px;
+      background: radial-gradient(circle at 3px 3px, #FDF0C6 0%, var(--brass) 50%, var(--brass-dark) 100%);
+      border-radius: 50%;
+      box-shadow: 1px 2px 4px rgba(0,0,0,0.4), inset -1px -1px 2px rgba(0,0,0,0.2);
+    }
+    .bh-tl { top: 10px; left: 10px; }
+    .bh-tr { top: 10px; right: 10px; }
+    .bh-bl { bottom: 10px; left: 10px; }
+    .bh-br { bottom: 10px; right: 10px; }
+
+    .site-header {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 2rem;
+      border-bottom: 2px dashed var(--brass-dark);
+      padding-bottom: 1.5rem;
+    }
+
+    .site-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--wood-dark);
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.02em;
+    }
+
+    .site-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* アニメーション用クラス */
+    @keyframes fadeInSlideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .task-card.animate-enter {
+      animation: fadeInSlideUp 0.4s ease forwards;
+    }
+
+    /* 条件トグル関連CSS（段階的開示対応） */
+    .conditions-container {
+      background: var(--paper);
+      border: 0 solid var(--accent-gray);
+      border-radius: 12px;
+      padding: 0 1.5rem;
+      
+      /* 段階的開示（スライドダウン） */
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      margin-bottom: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      border-width: 0;
+      transition: all 0.5s ease-in-out;
+    }
+    .conditions-container.visible {
+      max-height: 500px;
+      opacity: 1;
+      margin-bottom: 2.5rem;
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-width: 3px;
+      box-shadow: var(--shadow-card);
+    }
+    .conditions-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--wood-dark);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .conditions-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+    .condition-toggle {
+      display: block;
+      cursor: pointer;
+      user-select: none;
+    }
+    .condition-toggle input[type="checkbox"] {
+      display: none;
+    }
+    .toggle-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      background: #F8FAFC;
+      border: 2px solid #CBD5E1;
+      border-radius: 8px;
+      font-weight: 700;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+    .condition-toggle input[type="checkbox"]:checked + .toggle-content {
+      background: #FDF0C6;
+      border-color: var(--brass);
+      color: var(--wood-dark);
+      box-shadow: 0 4px 8px rgba(212, 175, 103, 0.2);
+    }
+
+    /* 引越し予定日ピッカー（Flatpickr向けUI） */
+    .calendar-btn-container {
+      position: relative;
+      margin-bottom: 2.5rem;
+      width: 100%;
+    }
+    .flatpickr-custom-input {
+      width: 100%;
+      background: var(--paper);
+      border: 4px dashed var(--brass);
+      border-radius: 12px;
+      padding: 1.8rem;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--wood-dark);
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--shadow-card);
+      outline: none;
+    }
+    .flatpickr-custom-input::placeholder {
+      color: var(--text-muted);
+      font-weight: 600;
+      opacity: 0.8;
+    }
+    .flatpickr-custom-input:hover {
+      background: #FDF0C6;
+      border-color: var(--brass-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(46, 32, 21, 0.1);
+    }
+    .flatpickr-custom-input:focus {
+      border: 4px solid var(--wood-dark);
+      background: #FAF8F5;
+      box-shadow: 0 0 0 4px rgba(212, 175, 103, 0.4);
+    }
+    .flatpickr-custom-input.filled {
+      border: 4px solid var(--wood-dark);
+      background: #FAF8F5;
+    }
+    .calendar-btn-sub-text {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    /* フェーズセクションと期限切れ装飾 */
+    .phase-section {
+      margin-bottom: 2.5rem;
+      padding: 1rem;
+      border: 2px dashed transparent;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .phase-section.phase-overdue {
+      background: #FFF5F5;
+      border-color: #FEB2B2;
+      box-shadow: 0 4px 12px rgba(229, 62, 62, 0.1);
+    }
+
+    .phase-header {
+      margin-bottom: 1.2rem;
+    }
+
+    .phase-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--wood-dark);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .phase-title::before {
+      content: '';
+      display: block;
+      width: 6px;
+      height: 24px;
+      background: var(--brass);
+      border-radius: 3px;
+      margin-top: 2px;
+    }
+
+    .deadline-badge {
+      font-size: 0.9rem;
+      background: #E53E3E;
+      color: #FFF;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 2px 6px rgba(229, 62, 62, 0.3);
+      position: relative;
+      top: -2px;
+    }
+
+    /* 未入力時のフワッと光る誘導アニメーション */
+    @keyframes pulseBlink {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 175, 103, 0.7); }
+      70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(212, 175, 103, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 175, 103, 0); }
+    }
+
+    .deadline-badge.pending {
+      background: #FDF0C6;
+      color: var(--wood-dark);
+      border: 2px solid var(--brass);
+      box-shadow: none;
+      animation: pulseBlink 2.5s infinite ease-in-out;
+    }
+
+    .phase-overdue .phase-title {
+      color: #C53030;
+    }
+
+    .task-card {
+      display: block;
+      background: var(--paper);
+      border: 3px solid var(--wood-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      box-shadow: var(--shadow-card);
+      transition: var(--transition);
+      background-image: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(248,248,248,1) 100%);
+    }
+
+    .task-card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-2px);
+    }
+
+    .task-card.completed {
+      opacity: 0.7;
+      background: #F8FAFC;
+      border-color: #CBD5E1;
+    }
+
+    .task-card.completed .task-title {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .task-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .task-checkbox {
+      width: 24px;
+      height: 24px;
+      margin-top: 2px;
+      accent-color: var(--wood-dark);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .task-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.4;
+      margin-bottom: 0.6rem;
+    }
+
+    .task-body {
+      margin-left: 36px;
+    }
+
+    .task-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .task-warning {
+      background: #FFFAF0;
+      border: 1px solid #FBD38D;
+      border-left: 4px solid #DD6B20;
+      padding: 1rem;
+      border-radius: 6px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .critical-warning {
+      color: #333;
+      font-weight: 500;
+      font-size: 0.95rem;
+      margin-bottom: 0.6rem;
+      line-height: 1.5;
+    }
+
+    .highlight-orange {
+      color: #DD6B20;
+      font-weight: bold;
+    }
+
+    .disclaimer-block {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      padding: 1.2rem;
+      border-radius: 8px;
+      margin: 2rem 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .disclaimer-title {
+      font-weight: 800;
+      color: var(--wood-dark);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    
+    .estimated-loss {
+      color: #9B2C2C;
+      font-weight: 800;
+      font-size: 0.95rem;
+      display: inline-block;
+      background: #FED7D7;
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      margin-top: 3rem;
+      align-items: center;
+      border-top: 2px dashed var(--brass-dark);
+      padding-top: 2.5rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .btn-copy {
+      background: var(--wood-dark);
+      color: var(--paper);
+      box-shadow: 0 4px 12px rgba(50, 34, 21, 0.3);
+    }
+
+    .btn-copy:hover {
+      background: #463120;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(50, 34, 21, 0.4);
+    }
+
+    .btn-reset-trigger {
+      background: transparent;
+      color: var(--text-muted);
+      border: 2px solid var(--accent-gray);
+    }
+
+    .btn-reset-trigger:hover {
+      background: #FFF5F5;
+      color: #E53E3E;
+      border-color: #FEB2B2;
+    }
+
+    /* Footer */
+    .site-footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      line-height: 1.8;
+      margin-top: auto;
+    }
+    .footer-nav {
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .footer-nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .footer-nav a:hover { color: var(--wood-border); text-decoration: underline; }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.7);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10000; opacity: 0; visibility: hidden;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    
+    .modal-content-box {
+      background: var(--paper);
+      width: 90%; max-width: 600px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 2.5rem;
+      border-radius: 12px;
+      position: relative;
+      border: 4px solid var(--wood-dark);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+    .modal-overlay.active .modal-content-box { transform: translateY(0); }
+    
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: none; border: none; font-size: 1.5rem;
+      color: var(--text-muted); cursor: pointer; line-height: 1;
+    }
+    .modal-title { 
+      font-size: 1.25rem; font-weight: 800; color: var(--wood-dark); 
+      margin-bottom: 1.5rem; border-bottom: 2px solid var(--accent-gray); padding-bottom: 0.5rem; 
+    }
+    .modal-body p { font-size: 0.95rem; color: var(--text-main); line-height: 1.7; margin-bottom: 1rem; }
+    .modal-body ul { margin-bottom: 1rem; padding-left: 1.5rem; font-size: 0.95rem; }
+    .modal-body li { margin-bottom: 0.5rem; }
+
+    /* Reset Modal specifics */
+    .reset-warning-text {
+      color: #C53030;
+      font-weight: 700;
+      font-size: 1.1rem;
+      text-align: center;
+      margin-bottom: 1.5rem !important;
+    }
+
+    .reset-confirm-box {
+      background: #F8FAFC;
+      border: 2px solid var(--accent-gray);
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .reset-confirm-box input[type="checkbox"] {
+      width: 20px; height: 20px;
+      accent-color: #E53E3E;
+    }
+
+    .reset-confirm-box label {
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .btn-execute-reset {
+      background: #E53E3E;
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      width: 100%;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn-execute-reset:not(:disabled):hover {
+      background: #C53030;
+    }
+
+    .btn-execute-reset:disabled {
+      background: #CBD5E1;
+      cursor: not-allowed;
+      color: #94A3B8;
+    }
+
+    @media (max-width: 600px) {
+      .desk-container {
+        width: 100%;
+        margin: 1rem 0;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        padding: 2.5rem 1.5rem 3rem;
+      }
+      .bh-tl, .bh-bl { left: 4px; }
+      .bh-tr, .bh-br { right: 4px; }
+      .site-title { font-size: 1.3rem; }
+      
+      .calendar-btn-main-text {
+        font-size: 1.15rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="home-link-container">
+    <a href="../index.html" class="home-link">🏠 ホームへ戻る</a>
+  </div>
+
+  <div class="desk-container">
+    <div class="brass-hinge bh-tl"></div>
+    <div class="brass-hinge bh-tr"></div>
+    <div class="brass-hinge bh-bl"></div>
+    <div class="brass-hinge bh-br"></div>
+
+    <header class="site-header">
+      <h1 class="site-title">引越し逆算スケジュール<br>コンシェルジュ</h1>
+      <p class="site-subtitle">損をしないための徹底タスク管理</p>
+    </header>
+
+    <!-- 引越し予定日ピッカー（Flatpickr） -->
+    <div class="calendar-btn-container">
+      <p class="input-guide" style="font-size: 0.9rem; margin-bottom: 5px; color: var(--brass-dark); font-weight: 500;">📅 引越し予定日を選択（または直接入力）してください</p>
+      <input type="text" id="moving-date" class="flatpickr-custom-input" placeholder="📅 引越し予定日を選択・入力 (例: 2026/05/01)">
+      <div class="calendar-btn-sub-text">予定日が決まると、各タスクの期限が自動計算されます</div>
+      <p class="teaser-text" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; text-align: center;">※日付を入力すると、状況に合わせてタスクをカスタマイズできます。</p>
+    </div>
+
+    <!-- パーソナライズ機能（条件トグル） -->
+    <div class="conditions-container">
+      <div class="conditions-title">✓ 該当するものだけ追加してください</div>
+      <div class="conditions-grid">
+        <label class="condition-toggle">
+          <input type="checkbox" id="cond-rental" onchange="handleConditionChange()">
+          <span class="toggle-content">🏢 賃貸の退去あり</span>
+        </label>
+        <label class="condition-toggle">
+          <input type="checkbox" id="cond-internet" onchange="handleConditionChange()">
+          <span class="toggle-content">🌐 ネット回線の引越し</span>
+        </label>
+        <label class="condition-toggle">
+          <input type="checkbox" id="cond-child" onchange="handleConditionChange()">
+          <span class="toggle-content">👶 子どもあり</span>
+        </label>
+        <label class="condition-toggle">
+          <input type="checkbox" id="cond-pet" onchange="handleConditionChange()">
+          <span class="toggle-content">🐶 ペットあり</span>
+        </label>
+      </div>
+    </div>
+
+    <div id="app-content">
+      <!-- JavaScript will populate tasks here -->
+    </div>
+
+    <!-- 免責事項ブロック -->
+    <div class="disclaimer-block">
+      <span class="disclaimer-title">⚠️ ご利用にあたっての注意</span>
+      本ツールは一般的な引越し手続きをまとめておりますが、お住まいの自治体や契約内容により必要な手続きは異なります。情報の完全性や、手続きの遅れによる損害について当サイトは一切の責任を負いかねます。必ずご自身で各機関の公式情報をご確認ください。
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn btn-copy" onclick="copyToClipboard()">📋 LINEやメモに貼れる形式でコピー</button>
+      <button class="btn btn-reset-trigger" onclick="openResetModal()">🗑️ すべてのデータをリセット</button>
+    </div>
+  </div>
+
+  <!-- フッター -->
+  <footer class="site-footer">
+    <div class="footer-nav">
+      <a href="javascript:void(0)" onclick="openModal('modal-operator')">運営者情報</a>
+      <a href="javascript:void(0)" onclick="openModal('modal-privacy')">プライバシーポリシー・免責事項</a>
+      <a href="javascript:void(0)" onclick="openModal('modal-contact')">お問い合わせ</a>
+    </div>
+    <p><strong>ツール作成個人研究室</strong></p>
+    <p>日常の手間を減らす小さなツールを順次公開しています。</p>
+    <p style="margin-top: 6px; font-size: 0.85em;">※当サイトは広告を含みます</p>
+    <p style="margin-top: 4px;">© 2026 ツール作成個人研究室</p>
+  </footer>
+
+  <!-- リセット確認用モーダル -->
+  <div id="modal-reset" class="modal-overlay" onclick="closeModal('modal-reset')">
+    <div class="modal-content-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('modal-reset')">×</button>
+      <h2 class="modal-title" style="color: #E53E3E; border-color: #FEB2B2;">データの初期化</h2>
+      <div class="modal-body">
+        <p class="reset-warning-text">本当にすべてのチェック状態と予定日を削除しますか？<br>この操作は取り消せません。</p>
+        
+        <label class="reset-confirm-box" for="reset-confirm-check">
+          <input type="checkbox" id="reset-confirm-check" onchange="handleResetCheck(event)">
+          <span>同意して削除する</span>
+        </label>
+
+        <button id="btn-execute-reset" class="btn-execute-reset" disabled onclick="executeReset()">完全にリセットする</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 共通モーダルウィンドウ群 -->
+  <div id="modal-operator" class="modal-overlay" onclick="closeModal('modal-operator')">
+    <div class="modal-content-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('modal-operator')">×</button>
+      <h2 class="modal-title">運営者情報</h2>
+      <div class="modal-body">
+        <ul style="list-style: none; padding-left: 0;">
+          <li><strong>サイト名：</strong>ツール作成個人研究室</li>
+          <li><strong>運営者：</strong>ツール作成個人研究室 管理人</li>
+          <li><strong>URL：</strong>https://mytool-lab.com/</li>
+          <li><strong>運営目的：</strong>日常の面倒な計算や手続きを半自動化し、ユーザーのお金と時間の損失を防ぐためのシミュレーションツールの公開・検証。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-privacy" class="modal-overlay" onclick="closeModal('modal-privacy')">
+    <div class="modal-content-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('modal-privacy')">×</button>
+      <h2 class="modal-title">プライバシーポリシー・免責事項</h2>
+      <div class="modal-body">
+        <p><strong>広告の配信について</strong><br>当サイトは第三者配信の広告サービス（Google AdSense等）を利用しています。広告配信事業者はユーザーの興味に応じた広告を表示するためにCookieを使用することがあります。詳細については、<a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">Googleポリシーと規約</a>をご覧ください。</p>
+        <p><strong>アクセス解析ツールについて</strong><br>当サイトではGoogle Analyticsを利用しています。データは匿名で収集されており個人を特定するものではありません。</p>
+        <p><strong>免責事項</strong><br>当サイトのツールは目安であり、実際の正確性を完全に保証するものではありません。利用によるいかなる損害についても運営者は一切の責任を負いかねます。最終判断は自己責任でお願いします。</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-contact" class="modal-overlay" onclick="closeModal('modal-contact')">
+    <div class="modal-content-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('modal-contact')">×</button>
+      <h2 class="modal-title">お問い合わせ</h2>
+      <div class="modal-body">
+        <p>当サイトに関するご意見・ご質問・不具合報告がありましたら、以下のフォームよりご連絡ください。</p>
+        <div style="text-align: center; margin-top: 1.5rem;">
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSfXhEGP-qnCSzl3DimTrvZgx8mErYJ6LkWSd-lUwiHKl2DbjQ/viewform" target="_blank" rel="noopener" style="display: inline-block; background: linear-gradient(90deg, #7C3AED, #6366F1); color: #FFF; text-decoration: none; font-weight: bold; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">
+            📩 お問い合わせフォームはこちら
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // JSON Data extended with daysBefore for deadline calculation
+    const moveData = {
+      "phases": [
+        {
+          "phaseName": "引越し1ヶ月前（物件決定〜退去連絡）",
+          "daysBefore": 30,
+          "tasks": [
+            { "id": "task_move_001", "title": "引越し業者の手配（相見積もりと確定）", "description": "最低3社から見積もりを取り、業者と日時を確定させる。", "criticalWarning": "直前の手配になるとトラックの空き枠が消滅し、「繁忙期割増」や「特急料金」での契約を余儀なくされます。他社と比較して値切る時間も残されていないため、結果的に通常時の1.5倍〜2倍の費用を支払うリスクがあります。※2〜3月の繁忙期は『引越し難民』になるリスクが高いため、2〜3ヶ月前からの早めの手配を推奨します。", "estimatedLoss": "約3万円〜10万円の超過費用" },
+            { "id": "task_move_002", "condition": "rental", "title": "旧居の退去連絡（解約通知）", "description": "管理会社または大家へ、退去予定日を正式に連絡する。", "criticalWarning": "解約通知が遅れると、すでに住んでいない旧居との「二重家賃」が日割りで発生し続けます。", "estimatedLoss": "約3,000円〜1万円 / 日の損失" },
+            { "id": "task_move_003", "condition": "internet", "title": "ネット回線の移転・新規申込", "description": "プロバイダへ連絡し、新居での開通工事日を予約する。", "criticalWarning": "繁忙期は工事が「1ヶ月待ち」になることもあります。入居後に通信難民化し、スマホのギガ追加購入が連日発生します。", "estimatedLoss": "数千円〜1万円以上の通信費" }
+          ]
+        },
+        {
+          "phaseName": "引越し2週間前（インフラ・役所手続き）",
+          "daysBefore": 14,
+          "tasks": [
+            { "id": "task_move_004", "title": "市区町村役場での「転出届」の提出", "description": "異なる市区町村へ引っ越す場合、旧居の役所で転出証明書を発行してもらう。", "criticalWarning": "引越し後14日以内に新居での手続きを完了しないと、住民基本台帳法違反となる可能性があります。※ここで取得する転出証明書がないと、新居での転入届（過料対象）が出せません。", "estimatedLoss": "手続きの遅延リスク" },
+            { "id": "task_move_005", "title": "電気・ガス・水道の停止・開始手続き", "description": "各インフラ会社へ連絡する。（ガスは立ち会いが必要な場合あり）", "criticalWarning": "開始手続きを忘れると、引越し当日の夜に「電気がつかない」「お湯が出ずお風呂に入れない」最悪の初日を迎えます。", "estimatedLoss": "銭湯代・外食代の出費" },
+            { "id": "task_move_006", "condition": "child", "title": "児童手当の住所変更・転校手続き", "description": "役所での手続きおよび学校への連絡等を行う。", "criticalWarning": "期限を過ぎると手当の受給が一時停止されたり、新学期の登校に支障が出ます。", "estimatedLoss": "受給遅れ・手続きの二度手間" }
+          ]
+        },
+        {
+          "phaseName": "引越し1週間前〜直前（各種変更手続き）",
+          "daysBefore": 7,
+          "tasks": [
+            { "id": "task_move_007", "title": "郵便物の転送手続き（e転居）", "description": "旧住所宛の郵便物を新住所へ転送する手続きを行う。", "criticalWarning": "重要書類が旧居に届き続け、支払い遅延による損害金が発生したり、個人情報が漏洩する原因になります。", "estimatedLoss": "支払い遅延損害金＋情報漏洩リスク" },
+            { "id": "task_move_008", "title": "旧居の火災保険の解約手続き", "description": "火災保険（家財保険）の解約・返戻金の手続きを行う。", "criticalWarning": "解約を忘れたまま放置すると、本来戻ってくるはずだった「未経過期間分の保険料」をドブに捨てることになります。", "estimatedLoss": "数千円〜数万円の返戻金の喪失" },
+            { "id": "task_move_009", "condition": "pet", "title": "ペットの移動準備・新居の環境整備", "description": "移動用のケージ等を準備し、新居での居場所をあらかじめ決めておく。", "criticalWarning": "ペットは環境変化で体調を崩しやすいため、初日から落ち着ける静かな場所の確保が必要です。", "estimatedLoss": "通院費やストレスによる体調不良" }
+          ]
+        },
+        {
+          "phaseId": "phase_post_move",
+          "phaseName": "引越し直後（14日以内）",
+          "daysAfter": 14,
+          "tasks": [
+            { "id": "task_move_010", "title": "役所での転入届・マイナンバーカードの住所変更", "description": "新居の役所で転入・転居の手続きを行い、マイナンバーカードの住所変更を行う。", "criticalWarning": "引越し後14日を過ぎると、住民基本台帳法違反で最大5万円の過料が発生する可能性があります。", "estimatedLoss": "最大5万円の過料リスク" },
+            { "id": "task_move_011", "title": "運転免許証・銀行口座の住所変更", "description": "警察署で免許証の住所変更、および各金融機関で手続きを行う。", "criticalWarning": "本人確認書類として使えなくなり、今後のあらゆる重要な契約手続きや郵便物の受け取りがストップします。", "estimatedLoss": "手続き進行の遅延・サービス停止" },
+            { "id": "task_move_012", "condition": "pet", "title": "ペットの各種手続き・かかりつけ医の確保（※犬は登録変更必須）", "description": "市区町村役場での手続き（犬のみ）、および新居周辺の動物病院の確認", "criticalWarning": "犬の場合は狂犬病予防法により30日以内の住所変更が義務付けられています。また、猫やその他のペットも環境変化によるストレスで体調を崩しやすいため、早急に新居周辺の動物病院をリストアップしておくことが重要です。", "estimatedLoss": "法令違反の罰則リスク" }
+          ]
+        }
+      ]
+    };
+
+    // Initialize App
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedDate = localStorage.getItem('movingDate');
+      
+      // Flatpickr初期化
+      flatpickr("#moving-date", {
+        locale: "ja",
+        dateFormat: "Y/m/d",
+        allowInput: true,
+        minDate: "today",
+        defaultDate: savedDate || null,
+        onChange: function(selectedDates, dateStr, instance) {
+          if (selectedDates.length > 0 && selectedDates[0] < new Date().setHours(0,0,0,0)) {
+            alert('引越し予定日は今日以降の日付を入力してください。');
+            instance.clear();
+            return;
+          }
+          const conditionsContainer = document.querySelector('.conditions-container');
+          if(dateStr) {
+            localStorage.setItem('movingDate', dateStr);
+            instance.element.classList.add('filled');
+            conditionsContainer.classList.add('visible'); // 段階的開示で表示
+          } else {
+            localStorage.removeItem('movingDate');
+            instance.element.classList.remove('filled');
+            conditionsContainer.classList.remove('visible'); // 再度隠す
+          }
+          renderTasks(); // Re-calculate deadlines and update UI
+        }
+      });
+
+      // 初回表示のCSSクラス適用・条件トグルの表示
+      if (savedDate) {
+        document.getElementById('moving-date').classList.add('filled');
+        document.querySelector('.conditions-container').classList.add('visible');
+      }
+
+      // Load toggles from localStorage
+      ['rental', 'internet', 'child', 'pet'].forEach(key => {
+        const val = localStorage.getItem(`cond_${key}`);
+        if (val === 'true') {
+          document.getElementById(`cond-${key}`).checked = true;
+        }
+      });
+      
+      renderTasks();
+    });
+
+    function handleConditionChange() {
+      ['rental', 'internet', 'child', 'pet'].forEach(key => {
+        const isChecked = document.getElementById(`cond-${key}`).checked;
+        localStorage.setItem(`cond_${key}`, isChecked);
+      });
+      renderTasks();
+    }
+
+    function renderTasks() {
+      const movingDateStr = localStorage.getItem('movingDate');
+
+      // 1.5 アクティブな条件の取得
+      const activeConditions = {
+        rental: document.getElementById('cond-rental').checked,
+        internet: document.getElementById('cond-internet').checked,
+        child: document.getElementById('cond-child').checked,
+        pet: document.getElementById('cond-pet').checked
+      };
+
+      // 2. タスクとデッドラインバッジの描画
+      const appContent = document.getElementById('app-content');
+      appContent.innerHTML = '';
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const movingDate = movingDateStr ? new Date(movingDateStr) : null;
+
+      moveData.phases.forEach((phase) => {
+        const filteredTasks = phase.tasks.filter(task => {
+          if (!task.condition) return true;
+          return activeConditions[task.condition] === true;
+        });
+
+        if (filteredTasks.length === 0) return; // 条件に合致するタスクがなければフェーズごと非表示
+
+        let deadlineStr = '<span class="deadline-badge pending">✨ 予定日を入れて計算</span>';
+        let isOverdue = false;
+
+        if (movingDate) {
+          const deadlineDate = new Date(movingDate);
+          
+          if (phase.daysAfter !== undefined) {
+             deadlineDate.setDate(deadlineDate.getDate() + phase.daysAfter);
+          } else if (phase.daysBefore !== undefined) {
+             deadlineDate.setDate(deadlineDate.getDate() - phase.daysBefore);
+          }
+          
+          const m = deadlineDate.getMonth() + 1;
+          const d = deadlineDate.getDate();
+          
+          // Check for uncompleted tasks in the active tasks only
+          const hasUncompleted = filteredTasks.some(t => localStorage.getItem(t.id) !== 'true');
+
+          if (today > deadlineDate && hasUncompleted) {
+            isOverdue = true;
+            deadlineStr = `<span class="deadline-badge">🚨 デッドライン超過：${m}月${d}日</span>`;
+          } else {
+            deadlineStr = `<span class="deadline-badge" style="background:var(--wood-dark);">期限：${m}月${d}日まで</span>`;
+          }
+        }
+
+        const phaseSection = document.createElement('div');
+        phaseSection.className = `phase-section ${isOverdue ? 'phase-overdue' : ''}`;
+
+        const phaseHeader = document.createElement('div');
+        phaseHeader.className = 'phase-header';
+        
+        phaseHeader.innerHTML = `
+          <h2 class="phase-title">
+            <span>${phase.phaseName}</span>
+            ${deadlineStr}
+          </h2>
+        `;
+        phaseSection.appendChild(phaseHeader);
+
+        filteredTasks.forEach((task) => {
+          const isChecked = localStorage.getItem(task.id) === 'true';
+
+          const taskCard = document.createElement('label');
+          // 動的挿入時にアニメーションするよう animate-enter を付与
+          taskCard.className = `task-card animate-enter ${isChecked ? 'completed' : ''}`;
+          taskCard.setAttribute('for', task.id);
+
+          taskCard.innerHTML = `
+            <div class="task-header">
+              <input type="checkbox" id="${task.id}" class="task-checkbox" ${isChecked ? 'checked' : ''} onchange="toggleTask('${task.id}')">
+              <div style="flex-grow: 1;">
+                <h3 class="task-title">${task.title}</h3>
+                <div class="task-body">
+                  <p class="task-desc">${task.description}</p>
+                  <div class="task-warning">
+                    <p class="critical-warning"><span class="highlight-orange">⚠️ 注意:</span> ${task.criticalWarning}</p>
+                    <p class="estimated-loss">💸 予想される損失: ${task.estimatedLoss}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          phaseSection.appendChild(taskCard);
+        });
+
+        appContent.appendChild(phaseSection);
+      });
+    }
+
+    function toggleTask(id) {
+      const checkbox = document.getElementById(id);
+      localStorage.setItem(id, checkbox.checked);
+      
+      // Re-render essentially handles completing a task that was "overdue" automatically
+      // because it recalculates `isOverdue` based on `hasUncompleted`.
+      renderTasks();
+    }
+
+    function copyToClipboard() {
+      let text = "📋 引越し逆算スケジュール・状況\n\n";
+      
+      const movingDateStr = localStorage.getItem('movingDate');
+      const movingDate = movingDateStr ? new Date(movingDateStr) : null;
+      if (movingDateStr) {
+        text += `📅 引越し予定日: ${movingDateStr}\n\n`;
+      }
+
+      // 現在のアクティブな条件（トグルの状態）を取得
+      const activeConditions = {
+        rental: document.getElementById('cond-rental').checked,
+        internet: document.getElementById('cond-internet').checked,
+        child: document.getElementById('cond-child').checked,
+        pet: document.getElementById('cond-pet').checked
+      };
+
+      moveData.phases.forEach(phase => {
+        // 条件に合致するタスクのみを抽出（画面表示と同期）
+        const filteredTasks = phase.tasks.filter(task => {
+          if (!task.condition) return true;
+          return activeConditions[task.condition] === true;
+        });
+
+        if (filteredTasks.length === 0) return;
+
+        // 各フェーズの期日（デッドライン）を計算
+        let deadlineInfo = "";
+        if (movingDate) {
+          const deadlineDate = new Date(movingDate);
+          if (phase.daysAfter !== undefined) {
+             deadlineDate.setDate(deadlineDate.getDate() + phase.daysAfter);
+          } else if (phase.daysBefore !== undefined) {
+             deadlineDate.setDate(deadlineDate.getDate() - phase.daysBefore);
+          }
+          const m = deadlineDate.getMonth() + 1;
+          const d = deadlineDate.getDate();
+          deadlineInfo = ` (期限: ${m}月${d}日まで)`;
+        } else {
+          deadlineInfo = " (期限: 未設定)";
+        }
+
+        text += `【${phase.phaseName}】${deadlineInfo}\n`;
+        filteredTasks.forEach(task => {
+          const isChecked = localStorage.getItem(task.id) === 'true';
+          text += `${isChecked ? '[x]' : '[ ]'} ${task.title}\n`;
+        });
+        text += "\n";
+      });
+      
+      text += "🔗 https://mytool-lab.com/move/\n";
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert("クリップボードに現在の状況をコピーしました！");
+      }).catch(err => {
+        alert("コピーに失敗しました。");
+      });
+    }
+
+    // Modal Handle functions
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function openResetModal() {
+      openModal('modal-reset');
+      const check = document.getElementById('reset-confirm-check');
+      check.checked = false;
+      handleResetCheck({ target: check });
+    }
+
+    function handleResetCheck(e) {
+      const btn = document.getElementById('btn-execute-reset');
+      btn.disabled = !e.target.checked;
+    }
+
+    function executeReset() {
+      // 特定のタスクのIDのみを削除する（他のツールのデータ保護のため）
+      moveData.phases.forEach(phase => {
+        phase.tasks.forEach(task => {
+          localStorage.removeItem(task.id);
+        });
+      });
+      
+      // トグルの状態をクリア
+      ['rental', 'internet', 'child', 'pet'].forEach(key => {
+        const checkbox = document.getElementById(`cond-${key}`);
+        if(checkbox) checkbox.checked = false;
+        localStorage.removeItem(`cond_${key}`);
+      });
+
+      
+      // 予定日もクリア
+      localStorage.removeItem('movingDate');
+      const dateInput = document.getElementById('moving-date');
+      if (dateInput && dateInput._flatpickr) {
+        dateInput._flatpickr.clear();
+        dateInput.classList.remove('filled');
+      }
+
+      closeModal('modal-reset');
+      renderTasks();
+      alert('すべてのタスク状況と引越し予定日をリセットしました。');
+    }
+
+    // ESCキーおよび背景クリックのイベント設定
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        ['modal-reset', 'modal-operator', 'modal-privacy', 'modal-contact'].forEach(id => {
+          const modal = document.getElementById(id);
+          if (modal && modal.classList.contains('active')) {
+            closeModal(id);
+          }
+        });
+      }
+    });
+
+  </script>
+</body>
+</html>
