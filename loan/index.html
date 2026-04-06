@@ -37,6 +37,7 @@
       display: flex;
       flex-direction: column;
       position: relative;
+      overflow-x: hidden;
       background-image: 
         linear-gradient(to right, rgba(115, 107, 99, 0.04) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(115, 107, 99, 0.04) 1px, transparent 1px);
@@ -187,9 +188,10 @@
     }
     .chart-container { 
       position: relative; 
-      height: 500px; 
+      height: 400px; 
       width: 100%; 
-      margin-top: 1.5rem; 
+      margin-top: 10px; 
+      margin-bottom: 30px; 
     }
 
     /* フッター */
@@ -242,6 +244,44 @@
       .bh-tl, .bh-tr, .bh-bl, .bh-br { display: none; }
       .site-title { font-size: 1.3rem; }
       .chart-container { height: 380px; }
+    }
+
+    /* アフィリエイト広告エリア */
+    .affiliate-container {
+      margin: 20px auto;
+      text-align: center;
+      padding: 0 1rem;
+    }
+    .affiliate-container p, .pr-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      line-height: 1.6;
+    }
+    .affiliate-container a {
+      display: inline-block;
+      box-sizing: border-box;
+      max-width: calc(100% - 40px);
+      margin: 0 auto;
+      padding: 12px 24px;
+      background: #FFFFFF;
+      color: #4A2B15;
+      border: 2px solid #4A2B15;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      line-height: 1.5;
+      white-space: normal;
+      transition: var(--transition);
+      box-shadow: 0 2px 6px rgba(30, 15, 5, 0.1);
+    }
+    .affiliate-container a:hover {
+      background: #FDFBF7;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(30, 15, 5, 0.15);
+    }
+    .affiliate-container img {
+      vertical-align: middle;
     }
   </style>
 
@@ -402,21 +442,24 @@
             ※<span style="color: #2563eb;">青い破線</span>：投資資金をすべて繰上返済に回した場合のローン残高<br>
             ※<span style="color: #10b981;">緑の破線</span>：完済までは投資を行わず、完済した翌月から浮いた資金（返済額＋投資予定額）をすべて投資に回した場合の推移
           </p>
-          <div style="text-align: center; border-top: 1px dashed #CBD5E1; padding-top: 16px; margin-top: 16px;">
-            <p style="font-size: 0.85em; font-weight: bold; color: #334155; margin-bottom: 12px;">【追加検証】金利の変動（±0.1%）が与える影響の比較</p>
+          <div style="text-align: center; border-top: 1px dashed #CBD5E1; padding-top: 10px; margin-top: 10px;">
+            <p style="font-size: 0.85em; font-weight: bold; color: #334155; margin-bottom: 6px;">【追加検証】金利の変動（±0.1%）が与える影響の比較</p>
             <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-              <button id="btn-rate-up" style="background: #FFF; border: 2px solid #64748B; color: #475569; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s;">
+              <button id="btn-rate-up" style="background: #FFF; border: 2px solid #64748B; color: #475569; padding: 6px 14px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s;">
                 🔼 金利を 0.1% 上げる
               </button>
-              <button id="btn-rate-down" style="background: #FFF; border: 2px solid #64748B; color: #475569; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s;">
+              <button id="btn-rate-down" style="background: #FFF; border: 2px solid #64748B; color: #475569; padding: 6px 14px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s;">
                 🔽 金利を 0.1% 下げる
               </button>
             </div>
-            <p style="font-size: 0.8em; color: #64748B; margin-top: 8px;">※ボタンを押すと即座に再計算され、グラフと結果が更新されます。</p>
+            <p style="font-size: 0.8em; color: #64748B; margin-top: 6px;">※ボタンを押すと即座に再計算され、グラフと結果が更新されます。</p>
           </div>
         </div>
 
         <div class="chart-container">
+          <div id="display-rate-container" style="text-align:center; font-size:1.5rem; font-weight:800; margin: 20px 0 10px; color:#4A2B15;">
+            現在の検証金利：<span id="current-rate-num">1.0</span>%
+          </div>
           <canvas id="loanChart"></canvas>
         </div>
         
@@ -428,6 +471,16 @@
             <li style="margin-bottom: 4px;"><strong>投資継続プラン：</strong> 受け取った還付金は、すべて「投資（資産運用）」に回して複利で増やす前提で計算しています。</li>
             <li><strong>繰上返済プラン：</strong> 受け取った還付金は、すべて「ローンの繰り上げ返済（元本削減）」に追加で充てて、さらに早く借金を減らす前提で計算しています。</li>
           </ul>
+        </div>
+
+        <div class="affiliate-container">
+          <p>
+            0.1%の金利差は、返済総額に想像以上の差を生みます。<br>
+            今の条件で見直し余地があるか確認しておくことが、将来の負担を減らす第一歩になります。
+          </p>
+          <p class="pr-text">（※PR）</p>
+          <a href="https://px.a8.net/svt/ejp?a8mat=4AZSSQ+CSTJ02+3SUE+68MF6" rel="noopener noreferrer nofollow" target="_blank">最短5分！住宅ローンいくら減らせるか診断！モゲチェック</a>
+          <img border="0" width="1" height="1" src="https://www19.a8.net/0.gif?a8mat=4AZSSQ+CSTJ02+3SUE+68MF6" alt="">
         </div>
 
         <div style="margin-top: 32px; padding: 20px; background: #FDFBF7; border: 2px solid #E2E8F0; border-radius: 8px; text-align: center;">
@@ -573,6 +626,7 @@
 
     // Chart.js インスタンス保持用
     let myChart = null;
+    let fixedChartMaxY = null;
 
     // ハイライト描画カスタムプラグイン
     const deductionHighlightPlugin = {
@@ -599,7 +653,7 @@
     Chart.register(deductionHighlightPlugin);
 
     // 計算ロジック
-    function runSimulation() {
+    function runSimulation(isInitial = false, shouldScroll = false) {
       // 詳細モード判定
       const isDetailedMode = document.getElementById('toggle-detailed').checked;
 
@@ -608,6 +662,11 @@
       let loanInterest = parseFloat(document.getElementById('loan-interest').value) || 0;
       let monthlyPayment = parseFloat(document.getElementById('monthly-payment').value) || 0;
       let monthlyInv = parseFloat(document.getElementById('monthly-investment').value) || 0;
+
+      const rateDisplay = document.getElementById('current-rate-num');
+      if (rateDisplay) {
+        rateDisplay.innerText = loanInterest.toFixed(1);
+      }
 
       // エラーチェック
       if (loanBalance <= 0 || monthlyPayment <= 0) {
@@ -855,6 +914,22 @@
       const ctx = document.getElementById('loanChart').getContext('2d');
       if (myChart) myChart.destroy();
 
+      const allChartY = [...loanDataA, ...invDataA, ...loanDataB, ...invDataB].map(d => d.y);
+      const maxDataValue = Math.max(...allChartY, 10);
+      
+      // Y軸の動的固定ロジック
+      if (isInitial || fixedChartMaxY === null) {
+        // メイン計算時は新しく最大値を設定（1.1倍の余白）
+        fixedChartMaxY = Math.ceil(maxDataValue * 1.1);
+      } else {
+        // 金利調整時は既存の軸を維持。ただし安全策として突き抜けや極端な縮小（30%以下）時は再計算。
+        if (maxDataValue > fixedChartMaxY || maxDataValue < fixedChartMaxY * 0.3) {
+          fixedChartMaxY = Math.ceil(maxDataValue * 1.1);
+        }
+      }
+      
+      if (fixedChartMaxY < 100) fixedChartMaxY = 100; // 最小限のスケール確保
+
       myChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -869,6 +944,11 @@
           responsive: true, maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
           plugins: {
+            legend: {
+              labels: {
+                padding: 20
+              }
+            },
             annotation: (() => {
               const dfa = parseFloat(yearDebtFreeA);
               const dfb = parseFloat(yearDebtFreeB);
@@ -916,12 +996,18 @@
           },
           scales: {
             x: { type: 'linear', title: { display: true, text: '経過年数' } },
-            y: { title: { display: true, text: '金額 (万円)' } }
+            y: { 
+              beginAtZero: true,
+              max: fixedChartMaxY, 
+              title: { display: true, text: '金額 (万円)' } 
+            }
           }
         }
       });
 
-      document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (shouldScroll) {
+        document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
 
     document.getElementById('btn-calculate').addEventListener('click', function() {
@@ -930,7 +1016,7 @@
       btn.disabled = true;
       btn.innerText = '計算中...';
       setTimeout(() => {
-        try { runSimulation(); } 
+        try { runSimulation(true, true); } 
         finally { btn.disabled = false; btn.innerText = originalText; }
       }, 500);
     });
@@ -939,13 +1025,13 @@
       let currentRate = parseFloat(document.getElementById('loan-interest').value) || 0;
       let newRate = (Math.round(currentRate * 10) + 1) / 10;
       document.getElementById('loan-interest').value = newRate.toFixed(1);
-      runSimulation();
+      runSimulation(false, false);
     });
     document.getElementById('btn-rate-down').addEventListener('click', () => {
       let currentRate = parseFloat(document.getElementById('loan-interest').value) || 0;
       let newRate = Math.max(0, (Math.round(currentRate * 10) - 1) / 10);
       document.getElementById('loan-interest').value = newRate.toFixed(1);
-      runSimulation();
+      runSimulation(false, false);
     });
 
     // ESCキーでモーダルを閉じる
