@@ -48,7 +48,7 @@ var taskData = [
     type: "warning",
     isCritical: true,
     title: "【最重要】退職日より4日以上前に医療機関を受診してください",
-    description: "傷病手当金の対象となるには、退職前に連続した休養期間（待期3日間）と医師の診断が必要です。<br><br><span class='risk-arrow'>→ 未受診のまま退職した場合：</span><br><strong>傷病手当金（給与の約2/3・最長1年6ヶ月）の受給対象外となる可能性があります。</strong><br><span class='risk-note'>※退職後の受診では対象になりません。</span>",
+    description: "傷病手当金の対象となるには、退職前に連続した休養期間（待期3日間）と医師の診断が必要です。<br><br><span class='risk-arrow'>→ 未受診のまま退職した場合：</span><br><strong>傷病手当金（給与の約2/3・最長1年6ヶ月）の受給対象外となる可能性があります。</strong><br><span class='risk-note'>※退職後の受診では対象になりません。</span>（※この制度は自動適用されません。退職日以前に医師の証明が必要です。退職後の申請では手遅れになる可能性があります）",
     lossWarning: null,
     benefitInfo: null,
     actionPlace: "通院先（心療内科や各種専門医）"
@@ -74,7 +74,7 @@ var taskData = [
     deadlineRule: "strict",
     type: "warning",
     title: "【最重要】本日より会社への業務連絡を停止してください",
-    description: "傷病手当金の待期期間および受給権確定日にあたります。<br><br><span class='risk-arrow'>→ 業務連絡（メールやチャット）を行った場合：</span><br><strong>「労務可能（働ける状態）」とみなされ、給付要件を満たさなくなるケースがあります。</strong><br><span class='risk-note'>※引き継ぎ等は事前に済ませ、療養に専念してください。</span>",
+    description: "傷病手当金の待期期間および受給権確定日にあたります。<br><br><span class='risk-arrow'>→ 業務連絡（メールやチャット）を行った場合：</span><br><strong>「労務可能（働ける状態）」とみなされ、給付要件を満たさなくなるケースがあります。</strong><br><span class='risk-note'>※引き継ぎ等は事前に済ませ、療養に専念してください。</span>（※この制度は自動適用されません。退職日以前に医師の証明が必要です。退職後の申請では手遅れになる可能性があります）",
     lossWarning: null,
     benefitInfo: null,
     actionPlace: "自宅（療養への専念）"
@@ -90,7 +90,7 @@ var taskData = [
     type: "warning",
     isCritical: true,
     title: "【最重要】退職日当日は出勤・就労をしないでください",
-    description: "継続給付（退職後も手当をもらい続ける）の必須条件です。<br><br><span class='risk-arrow'>→ 出勤扱いとなった場合：</span><br><strong>継続給付の対象外となり、退職後の傷病手当金が受け取れなくなるケースがあります。</strong><br><span class='risk-note'>※「挨拶のみ」の短時間出勤でも無効になる可能性があります。</span>",
+    description: "継続給付（退職後も手当をもらい続ける）の必須条件です。<br><br><span class='risk-arrow'>→ 出勤扱いとなった場合：</span><br><strong>継続給付の対象外となり、退職後の傷病手当金が受け取れなくなるケースがあります。</strong><br><span class='risk-note'>※「挨拶のみ」の短時間出勤でも無効になる可能性があります。</span>（※この制度は自動適用されません。退職日以前に医師の証明が必要です。退職後の申請では手遅れになる可能性があります）",
     lossWarning: null,
     benefitInfo: null,
     actionPlace: "自宅での療養（完全な遮断）"
@@ -106,7 +106,7 @@ var taskData = [
     type: "warning",
     isCritical: true,
     title: "【重要確認】傷病手当金の受給要件の振り返り",
-    description: "すでに退職済みの場合、在職中の行動によって給付の可否が決まっています。①『退職日より前に医師の診察を受けていたか』、②『退職日を含め、直前4日間以上連続して休んでいた（当日の出勤・業務連絡なし）か』をご確認ください。",
+    description: "すでに退職済みの場合、在職中の行動によって給付の可否が決まっています。①『退職日より前に医師の診察を受けていたか』、②『退職日を含め、直前4日間以上連続して休んでいた（当日の出勤・業務連絡なし）か』をご確認ください。（※この制度は自動適用されません。退職日以前に医師の証明が必要です。退職後の申請では手遅れになる可能性があります）",
     lossWarning: "【致命的リスク】これらを満たしていない状態で退職した場合、事後申請を行っても対象外となるケースがあり、受給権を完全に喪失している可能性があります。",
     benefitInfo: null,
     actionPlace: "要件確認（満たさない場合は失業保険ルートへの早期切り替えが必要）"
@@ -145,7 +145,7 @@ var taskData = [
     deadlineRule: "strict",
     type: "warning",
     title: "【要確認】国民健康保険、または任意継続の加入手続き",
-    description: "退職後14日以内に健康保険の切り替えが必要です。<br><br><span class='risk-arrow'>→ 任意継続を希望し、退職後20日を過ぎた場合：</span><br><strong>いかなる理由でも任意継続への加入が認められなくなります。</strong><br><span class='risk-note'>※任意継続の手続きは「20日以内必着」です。</span>",
+    description: "退職後14日以内に健康保険の切り替えが必要です。<br><br><span class='risk-arrow'>→ 任意継続を希望し、退職後20日を過ぎた場合：</span><br><strong>いかなる理由でも任意継続への加入が認められなくなります。</strong><br><span class='risk-note'>※任意継続の手続きは「20日以内必着」です。</span>（※この手続きには厳格な期限があり、1日でも過ぎると一切選択できなくなります）",
     lossWarning: null,
     benefitInfo: null,
     actionPlace: "ご自身の住所を管轄する健康保険協会、または市区町村"
@@ -158,7 +158,7 @@ var taskData = [
     deadlineRule: "nextBusinessDay",
     type: "procedure",
     title: "国民年金「退職（失業）による特例免除」の申請",
-    description: "退職した事実を証明する書類（離職票等）を用いて、国民年金の保険料免除や納付猶予の特例申請を行うことが可能です。",
+    description: "退職した事実を証明する書類（離職票等）を用いて、国民年金の保険料免除や納付猶予の特例申請を行うことが可能です。（※未納のまま放置すると将来の年金額だけでなく障害年金の受給資格にも影響しますが、自動的には免除されません）",
     lossWarning: "【リスク】未納のまま放置し障害を負った場合、障害年金の受給要件を満たさなくなる可能性があります。",
     benefitInfo: "【メリット】全額免除が適用されると保険料の支払いがなくなり、将来の年金受給額には国庫負担分が反映されます。",
     actionPlace: "市区町村の国民年金窓口 または マイナポータル（電子申請）"
@@ -173,7 +173,7 @@ var taskData = [
     deadlineRule: "strict",
     type: "procedure",
     title: "雇用保険手続きに必要な「離職票」の到着確認",
-    description: "退職後10日〜14日程度経過しても離職票が届かない場合、所轄のハローワークでの雇用保険手続き（求職の申し込み）が開始できません。",
+    description: "退職後10日〜14日程度経過しても離職票が届かない場合、所轄のハローワークでの雇用保険手続き（求職の申し込み）が開始できません。（※申請のタイミングにより、受給開始時期や総額に大きな差が出る仕組みになっています）",
     lossWarning: "【留意点】書類の受領が遅れることで、失業手当の受給開始時期も連動して遅れることになります。",
     benefitInfo: null,
     actionPlace: "必要に応じた元勤務先への確認連絡"
@@ -186,7 +186,7 @@ var taskData = [
     deadlineRule: "helloWork",
     type: "procedure",
     title: "ハローワークでの「求職の申し込み」手続き",
-    description: "離職票を受領後、管轄のハローワークにて雇用保険の受給手続きを行います。",
+    description: "離職票を受領後、管轄のハローワークにて雇用保険の受給手続きを行います。（※申請のタイミングにより、受給開始時期や総額に大きな差が出る仕組みになっています）",
     lossWarning: "【留意点】手続きの開始が遅れると、給付金の受け取りもその分遅くなります。",
     benefitInfo: null,
     actionPlace: "管轄のハローワーク"
@@ -227,7 +227,7 @@ var taskData = [
     deadlineRule: "strict",
     type: "procedure",
     title: "翌年の確定申告に向けた準備",
-    description: "年内に再就職しなかった場合は年末調整が行われないため、ご自身での確定申告が必要になります。源泉徴収票など証明となる書類を大切に保管しておいてください。",
+    description: "年内に再就職しなかった場合は年末調整が行われないため、ご自身での確定申告が必要になります。源泉徴収票など証明となる書類を大切に保管しておいてください。（※給与から天引きされた税金は、自身で申告しない限り戻ってきません）",
     lossWarning: "【留意点】確定申告を行うことで、在職中に納めていた所得税が還付される可能性がありますが、申告しないと還付されません。",
     benefitInfo: "【メリット】手続きを行うことで、控除に基づいた還付金を受け取れる可能性があります。",
     actionPlace: "翌年2月〜：国税庁ウェブサイト または 管轄の税務署"
