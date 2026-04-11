@@ -138,9 +138,9 @@ function setupEventListeners() {
       } else if (preset === "sp500-fangplus") {
         targetA = findFund("S&P500");
         targetB = findFund("FANG");
-      } else if (preset === "orcan-8assets") {
-        targetA = findFund("オール・カントリー");
-        targetB = findFund("8資産均等");
+      } else if (preset === "sp500-nasdaq100") {
+        targetA = findFund("S&P500");
+        targetB = findFund("NASDAQ100");
       }
 
       if (targetA !== -1 && targetB !== -1) {

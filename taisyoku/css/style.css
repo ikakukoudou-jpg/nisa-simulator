@@ -1,0 +1,430 @@
+/* Base Settings */
+:root {
+  --primary-color: #00bcd4;
+  --primary-dark: #009eb3;
+  --bg-color: #f5f7fa;
+  --card-bg: #ffffff;
+  --text-main: #333333;
+  --text-sub: #666666;
+  --border-color: #e0e0e0;
+  --danger-color: #DD6B20; /* 落ち着いた濃いオレンジに変更 */
+  --success-color: #2ecc71;
+  --info-color: #3498db;
+}
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+.app-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.app-header h1 {
+  font-size: 1.8em;
+  margin-bottom: 10px;
+  color: var(--primary-dark);
+}
+
+.app-header p {
+  color: var(--text-sub);
+  font-size: 0.95em;
+}
+
+/* Question Cards */
+.question-card {
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.question-title {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 16px;
+  font-size: 1.1em;
+}
+
+.badge-required {
+  background-color: var(--danger-color);
+  color: white;
+  font-size: 0.75em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* Date Input Wrapper (Q1) */
+.date-input-wrapper {
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  border-radius: 8px;
+  border: 2px solid var(--border-color);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  font-weight: bold;
+  font-size: 1.2em;
+  margin: 0 auto;
+}
+
+.calendar-icon {
+  margin-right: 12px;
+  font-size: 1.4em;
+  pointer-events: none; /* Make sure click passes through to the absolute positioned input */
+}
+
+.date-input-wrapper input {
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  padding: 10px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  font-weight: inherit;
+  color: var(--text-main);
+}
+
+/* Radio Buttons */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 600px) {
+  .radio-group {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+.radio-btn {
+  display: block;
+  flex: 1;
+  min-width: 120px;
+  cursor: pointer;
+}
+
+.radio-btn input[type="radio"] {
+  display: none; /* Hide default radio */
+}
+
+.radio-label {
+  display: block;
+  text-align: center;
+  padding: 14px;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  background-color: #fafafa;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+/* Checked State Styling */
+.radio-btn input[type="radio"]:checked + .radio-label {
+  border-color: var(--primary-color);
+  background-color: #e0f7fa;
+  color: var(--primary-dark);
+}
+
+/* Range Slider */
+.range-group {
+  margin-top: 10px;
+}
+
+input[type="range"] {
+  width: 100%;
+  margin-bottom: 12px;
+  accent-color: var(--primary-color);
+}
+
+.range-value-display {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: var(--primary-dark);
+  text-align: right;
+}
+
+.highlight-value {
+  font-size: 1.3em;
+}
+
+/* Submit Button */
+.submit-area {
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 40px;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 16px 32px;
+  font-size: 1.2em;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0, 188, 212, 0.4);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  width: 100%;
+  max-width: 400px;
+}
+
+.btn-primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 8px rgba(0, 188, 212, 0.4);
+}
+
+/* Timeline Container */
+.timeline-container {
+  background-color: transparent;
+  padding-top: 20px;
+  border-top: 2px dashed #ddd;
+}
+
+.timeline-title {
+  text-align: center;
+  color: var(--text-main);
+  margin-bottom: 24px;
+}
+
+/* Timeline UI Badges */
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  color: white;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.badge-danger { background-color: var(--danger-color); }
+.badge-success { background-color: var(--success-color); }
+.badge-info { background-color: var(--info-color); }
+
+/* Animation classes */
+.fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.task-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.task-card.completed {
+  opacity: 0.65;
+  background-color: #f8f9fa !important;
+  border-color: #eee !important;
+}
+
+.task-card.completed .task-title {
+  text-decoration: line-through;
+  color: #999 !important;
+}
+
+.task-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.task-checkbox {
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.task-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  border-radius: 8px 0 0 8px;
+}
+
+.warning-card {
+  background-color: #FFFAF0 !important;
+  border: 1px solid #FBD38D !important;
+  box-shadow: 0 4px 12px rgba(221, 107, 32, 0.05) !important;
+  padding: 20px !important; /* より広めにとって重要性を演出 */
+}
+
+.warning-card::before {
+  background-color: var(--danger-color);
+  width: 8px;
+}
+
+/* 致命的リスク用デザイン（落ち着いた重圧感のある赤） */
+.critical-card {
+  background-color: #fdf2f2 !important;
+  border: 1px solid #f5aca6 !important;
+  box-shadow: 0 4px 12px rgba(189, 33, 48, 0.08) !important;
+  padding: 20px !important;
+}
+
+.critical-card::before {
+  background-color: #c0392b !important;
+  width: 8px;
+}
+
+.critical-card .task-title {
+  color: #c0392b !important;
+}
+
+.procedure-card::before {
+  background-color: var(--primary-color);
+}
+
+/* リスク指摘用の共通フォーマット */
+.risk-arrow {
+  display: block;
+  color: #DD6B20;
+  font-weight: bold;
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+
+.risk-note {
+  display: block;
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 6px;
+}
+
+@keyframes pulse {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0.8; transform: scale(1.05); }
+}
+
+.back-to-home { display: inline-block; margin: 15px 20px; color: #666; text-decoration: none; font-size: 0.9em; }
+.back-to-home:hover { text-decoration: underline; }
+
+.timeline-actions {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.btn-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 24px;
+  font-size: 0.95em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.btn-copy:hover {
+  background-color: #555;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.btn-copy:active {
+  transform: translateY(0);
+}
+
+.site-footer { text-align: center; padding: 40px 20px; background-color: #f8f9fa; margin-top: 50px; border-top: 1px solid #eee; }
+.footer-links { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+.footer-links a { color: #666; text-decoration: none; font-size: 0.9em; }
+.footer-links a:hover { text-decoration: underline; }
+.copyright { color: #999; font-size: 0.8em; margin: 0; }
+
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 9999; }
+.modal-content { background: #fff; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+.modal-close { position: absolute; top: 15px; right: 20px; font-size: 24px; background: none; border: none; cursor: pointer; color: #666; }
+
+.footer-info {
+  margin-bottom: 20px;
+  color: #666;
+}
+.site-name-footer {
+  font-weight: bold;
+  font-size: 1em;
+  margin-bottom: 4px;
+}
+.site-desc-footer {
+  font-size: 0.85em;
+  margin-bottom: 8px;
+}
+.ad-disclosure {
+  font-size: 0.8em;
+  color: #888;
+}
+
+/* お問い合わせボタンのスタイル */
+.contact-btn-wrapper {
+  text-align: center;
+  margin-top: 35px;
+  margin-bottom: 20px;
+}
+
+.contact-btn {
+  display: inline-block;
+  background-color: #007bff;
+  color: #ffffff !important;
+  text-decoration: none;
+  padding: 14px 30px;
+  border-radius: 8px;
+  font-size: 1.1em;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.contact-btn:hover {
+  background-color: #0056b3;
+  box-shadow: 0 6px 10px rgba(0, 123, 255, 0.3);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+#data-about ul { list-style: none; padding: 0; line-height: 1.8; }
+#data-about li { margin-bottom: 10px; }

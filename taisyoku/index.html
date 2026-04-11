@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>退職時の「見えない損失」回避シミュレーター | ツール作成個人研究室</title>
+  <meta name="description" content="退職してからでは手遅れになる前に。社会保険や手当の「もらい損ね」を防ぐタイムライン。">
+  <meta property="og:title" content="退職時の「見えない損失」回避シミュレーター | ツール作成個人研究室">
+  <meta property="og:description" content="退職してからでは手遅れになる前に。社会保険や手当の「もらい損ね」を防ぐタイムライン。">
+  <meta property="og:url" content="https://mytool-lab.com/taisyoku/index.html">
+  <meta property="og:image" content="https://mytool-lab.com/taisyoku/ogp-taisyoku.png">
+  <meta property="og:site_name" content="ツール作成個人研究室">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
+</head>
+<body>
+  <a href="../index.html" class="back-to-home">← ツール作成個人研究室 トップへ戻る</a>
+  <div class="app-container">
+    <header class="app-header">
+      <h1>退職時の「見えない損失」回避シミュレーター</h1>
+      <p>退職してからでは手遅れになる前に。社会保険や手当の「もらい損ね」を防ぐタイムライン。</p>
+    </header>
+
+    <main>
+      <form id="user-conditions-form" class="question-form">
+        <!-- Q1 -->
+        <div class="question-card">
+          <label class="question-title" for="base-date">Q1. あなたの退職（予定）日はいつですか？ <span class="badge-required">必須</span></label>
+          <div class="date-input-wrapper">
+            <span class="calendar-icon">📅</span>
+            <input type="text" id="base-date" name="baseDate" placeholder="YYYY/MM/DD (タップまたは数字入力)" inputmode="numeric" maxlength="10" required>
+          </div>
+          <p class="date-reset-warning" style="font-size: 0.85em; color: #999; margin-top: 8px; text-align: center;">※退職日を変更すると、タスクのチェック状態がリセットされます。</p>
+        </div>
+
+        <!-- Q2 -->
+        <div class="question-card">
+          <p class="question-title">Q2. 退職後、すでに次の就職先が決まっていますか？</p>
+          <div class="radio-group">
+            <label class="radio-btn">
+              <input type="radio" name="nextJob" value="yes">
+              <span class="radio-label">はい（内定あり）</span>
+            </label>
+            <label class="radio-btn">
+              <input type="radio" name="nextJob" value="no" checked>
+              <span class="radio-label">いいえ</span>
+            </label>
+            <label class="radio-btn">
+              <input type="radio" name="nextJob" value="undecided">
+              <span class="radio-label">未定</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="question-card">
+          <p class="question-title">Q3. 最近、体調不良が続いている、または強いストレスや不眠はありますか？</p>
+          <div class="radio-group">
+            <label class="radio-btn">
+              <input type="radio" name="healthCondition" value="true">
+              <span class="radio-label">はい（ある）</span>
+            </label>
+            <label class="radio-btn">
+              <input type="radio" name="healthCondition" value="false" checked>
+              <span class="radio-label">いいえ（ない）</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="question-card">
+          <p class="question-title">Q4. ご自身で事業（フリーランスや会社設立）を始める予定ですか？</p>
+          <div class="radio-group">
+            <label class="radio-btn">
+              <input type="radio" name="freelance" value="true">
+              <span class="radio-label">はい（予定あり）</span>
+            </label>
+            <label class="radio-btn">
+              <input type="radio" name="freelance" value="false" checked>
+              <span class="radio-label">いいえ</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="question-card">
+          <p class="question-title">Q5. 会社員・公務員の配偶者はいますか？</p>
+           <div class="radio-group">
+            <label class="radio-btn">
+              <input type="radio" name="hasSpouse" value="true">
+              <span class="radio-label">はい（いる）</span>
+            </label>
+            <label class="radio-btn">
+              <input type="radio" name="hasSpouse" value="false" checked>
+              <span class="radio-label">いいえ（いない）</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="submit-area">
+          <button type="button" id="generate-btn" class="btn-primary">制度を最大限生かすスケジュールを作成</button>
+          <div style="margin-top: 16px;">
+            <button type="button" id="reset-btn" style="background: none; border: 1px solid #ccc; color: #999; padding: 8px 20px; border-radius: 20px; font-size: 0.85em; cursor: pointer;">入力をすべてリセット</button>
+          </div>
+        </div>
+      </form>
+
+      <section id="timeline-container" class="timeline-container" style="display: none;">
+        <h2 class="timeline-title">あなた専用のタイムライン結果</h2>
+        <div class="timeline-actions" style="text-align: center; margin-bottom: 24px;">
+          <button type="button" class="btn-copy" onclick="copyToClipboard()" style="background: #333; color: #fff; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: background 0.2s;">📋 結果をクリップボードにコピー</button>
+        </div>
+        <div id="timeline-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-links">
+      <a href="#" onclick="openModal('modal-about'); return false;">運営者情報</a>
+      <a href="#" onclick="openModal('modal-privacy'); return false;">プライバシーポリシー・免責事項</a>
+      <a href="#" onclick="openModal('modal-contact'); return false;">お問い合わせ</a>
+    </div>
+    <div class="footer-info">
+      <p class="site-name-footer">ツール作成個人研究室</p>
+      <p class="site-desc-footer">実験的なツールも順次公開予定です。</p>
+      <p class="ad-disclosure">※当サイトは広告を含みます</p>
+    </div>
+    <p class="copyright">© 2026 ツール作成個人研究室</p>
+  </footer>
+
+  <div id="modal-overlay" class="modal-overlay" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="data-about" style="display:none;">
+    <h2>運営者情報</h2>
+    <ul>
+      <li><strong>サイト名：</strong>ツール作成個人研究室</li>
+      <li><strong>運営者：</strong>管理人</li>
+      <li><strong>URL：</strong>https://mytool-lab.com/</li>
+      <li><strong>運営目的：</strong>日々の生活で発生する「見えない損失」を防ぐための、実用的なシミュレーションツールを個人で開発・公開しています。</li>
+    </ul>
+  </div>
+
+  <div id="data-privacy" style="display:none;">
+    <h2>プライバシーポリシー・免責事項</h2>
+    <h3>プライバシーポリシー</h3>
+    <p>当サイトでは、Googleによるアクセス解析ツール「Google Analytics」を使用しています。このGoogle Analyticsはデータの収集のためにCookieを使用しています。このデータは匿名で収集されており、個人を特定するものではありません。</p>
+    <h3>免責事項</h3>
+    <p>当サイトからのリンクやバナーなどで移動したサイトで提供される情報、サービス等について一切の責任を負いません。<br>また当サイトのコンテンツ・情報について、できる限り正確な情報を提供するように努めておりますが、正確性や安全性を保証するものではありません。当サイトに掲載された内容によって生じた損害等の一切の責任を負いかねますのでご了承ください。</p>
+  </div>
+
+  <div id="data-contact" style="display:none;">
+    <h2>お問い合わせ</h2>
+    <p>ツールに関するご意見、ご要望、不具合のご報告などは、以下のフォームよりお願いいたします。</p>
+    <div class="contact-btn-wrapper">
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSfXhEGP-qnCSzl3DimTrvZgx8mErYJ6LkWSd-lUwiHKl2DbjQ/viewform" target="_blank" rel="noopener noreferrer" class="contact-btn">
+        お問い合わせフォームを開く
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-left: 6px;">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <line x1="10" y1="14" x2="21" y2="3"></line>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <script src="js/data-config.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
