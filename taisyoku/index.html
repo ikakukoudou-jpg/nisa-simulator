@@ -62,6 +62,7 @@
         <!-- Q3 -->
         <div class="question-card">
           <p class="question-title">Q3. 最近、体調不良が続いている、または強いストレスや不眠はありますか？</p>
+          <p class="question-note" style="font-size: 0.85em; color: #DD6B20; margin-top: -5px; margin-bottom: 10px;">※この質問に該当する場合、傷病手当金（最大1年6ヶ月）の対象になる可能性があります</p>
           <div class="radio-group">
             <label class="radio-btn">
               <input type="radio" name="healthCondition" value="true">
@@ -105,6 +106,15 @@
         </div>
 
         <div class="submit-area">
+          <div class="pre-submit-notice" style="background: #FFF5F5; border-left: 4px solid #E53E3E; padding: 12px 16px; margin-bottom: 20px; border-radius: 4px; font-size: 0.9em; color: #2D3748;">
+            <p style="font-weight: bold; margin-bottom: 8px;">※条件によっては、数十万円〜数百万円規模の給付・損失回避に影響します。</p>
+            <p style="margin-bottom: 4px;">この入力から以下を自動判定し、あなた専用のタイムラインを作成します：</p>
+            <ul style="margin-left: 20px; list-style-type: disc;">
+              <li>受給できる可能性のある給付金（失業保険・傷病手当など）</li>
+              <li>やらないと損する手続きと期限</li>
+              <li>社会保険の二重払いを防ぐ最適な行動タイミング</li>
+            </ul>
+          </div>
           <button type="button" id="generate-btn" class="btn-primary">制度を最大限生かすスケジュールを作成</button>
           <div style="margin-top: 16px;">
             <button type="button" id="reset-btn" style="background: none; border: 1px solid #ccc; color: #999; padding: 8px 20px; border-radius: 20px; font-size: 0.85em; cursor: pointer;">入力をすべてリセット</button>
