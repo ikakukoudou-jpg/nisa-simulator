@@ -191,7 +191,7 @@
       height: 400px; 
       width: 100%; 
       margin-top: 10px; 
-      margin-bottom: 30px; 
+      margin-bottom: 60px; 
     }
 
     /* フッター */
@@ -463,7 +463,7 @@
           <canvas id="loanChart"></canvas>
         </div>
         
-        <p style="font-size: 0.85em; color: #64748B; text-align: right; margin-top: 8px;">※投資利回り7%は、過去のS&P500等の実績をベースにした標準的な期待利回りとして設定しています。</p>
+        <p style="font-size: 0.85em; color: #64748B; text-align: right; margin-top: 40px; clear: both;">※投資利回り7%は、過去のS&P500等の実績をベースにした標準的な期待利回りとして設定しています。</p>
 
         <div style="margin-top: 16px; padding: 16px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; font-size: 0.85em; color: #475569; line-height: 1.7;">
           <p style="font-weight: bold; color: #334155; margin-bottom: 8px;">※シミュレーションにおける「住宅ローン控除（還付金）」の計算ルール</p>
@@ -998,7 +998,7 @@
             x: { type: 'linear', title: { display: true, text: '経過年数' } },
             y: { 
               beginAtZero: true,
-              max: fixedChartMaxY, 
+              grace: '25%',
               title: { display: true, text: '金額 (万円)' } 
             }
           }
