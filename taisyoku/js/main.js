@@ -675,7 +675,7 @@ window.copyToClipboard = function() {
 
   // ヘッダー構築
   let text = "";
-  text += "退職・失業手続きタイムライン（状況）\n\n";
+  text += "退職・失業手続きタイムライン（チェックリスト）\n\n";
   text += "退職日: " + retirementDateInput.value + "\n";
   text += separator + "\n";
 
