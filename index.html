@@ -3,202 +3,483 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>退職時の「見えない損失」回避シミュレーター | ツール作成個人研究室</title>
-  <meta name="description" content="退職してからでは手遅れになる前に。社会保険や手当の「もらい損ね」を防ぐタイムライン。">
-  <meta property="og:title" content="退職時の「見えない損失」回避シミュレーター | ツール作成個人研究室">
-  <meta property="og:description" content="退職してからでは手遅れになる前に。社会保険や手当の「もらい損ね」を防ぐタイムライン。">
-  <meta property="og:url" content="https://mytool-lab.com/taisyoku/index.html">
-  <meta property="og:image" content="https://mytool-lab.com/taisyoku/ogp-taisyoku.png">
-  <meta property="og:site_name" content="ツール作成個人研究室">
+  <title>見えにくい差を、計算で見える形に | ツール作成個人研究室</title>
+  <meta name="description" content="日常の手間を減らす実用Webツール集。あなたの「見えない損失」を客観的な計算で防ぎます。">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      /* 参考画像（木製製図机と白い壁）に基づくカラーパレット */
+      --wall-bg: #FCFDFB;
+      --desk-light: #F6E6D3;
+      --desk-dark: #E6CEB3;
+      --wood-border: #4E3624;
+      --wood-dark: #322215;
+      --brass: #D4AF67;
+      --brass-dark: #9B7B3F;
+      --paper: #FFFFFF;
+      --text-main: #2C2C2C;
+      --text-muted: #736B63;
+      --accent-gray: #E8E8E8;
+      
+      --shadow-desk: 0 16px 40px rgba(46, 32, 21, 0.15);
+      --shadow-card: 0 4px 12px rgba(46, 32, 21, 0.08);
+      --shadow-hover: 0 12px 24px rgba(46, 32, 21, 0.16);
+      
+      --transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', 'Noto Sans JP', sans-serif;
+      background-color: var(--wall-bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+      /* 背景の微かな鉛筆グリッド・手書き線風パターン */
+      background-image: linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    /* 手書きのフローチャートを模したSVG背景装飾 */
+    .bg-sketch {
+      position: absolute;
+      top: 10%; left: 5%;
+      width: 250px; height: 350px;
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: -1;
+      /* CSSで簡単なフローチャートを描画 */
+      background: 
+        linear-gradient(rgba(44,44,44,1) 0%, rgba(44,44,44,1) 100%) no-repeat 50% 10% / 80px 40px,   /* Start box */
+        linear-gradient(rgba(44,44,44,1) 0%, rgba(44,44,44,1) 100%) no-repeat 50% 40% / 100px 60px,  /* Process box */
+        linear-gradient(rgba(44,44,44,1) 0%, rgba(44,44,44,1) 100%) no-repeat 50% 80% / 80px 40px,   /* End box */
+        linear-gradient(rgba(44,44,44,1) 0%, rgba(44,44,44,1) 100%) no-repeat 50% 25% / 2px 40px,    /* Line 1 */
+        linear-gradient(rgba(44,44,44,1) 0%, rgba(44,44,44,1) 100%) no-repeat 50% 60% / 2px 80px;    /* Line 2 */
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cpath d='M50 20 L50 90 M50 150 L50 250 M50 20 L150 20 L150 150 L50 150 M50 250 L150 250' stroke='black' fill='none' stroke-dasharray='5,5' stroke-width='3'/%3E%3C/svg%3E");
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cpath d='M50 20 L50 90 M50 150 L50 250 M50 20 L150 20 L150 150 L50 150 M50 250 L150 250' stroke='black' fill='none' stroke-dasharray='4,4' stroke-width='2'/%3E%3C/svg%3E");
+    }
+
+    @media (max-width: 1024px) {
+      .bg-sketch { display: none; }
+    }
+
+    /* 木製製図机（中央のメインコンテナ） */
+    .desk-container {
+      width: 90%;
+      max-width: 800px;
+      margin: 4rem auto 2rem;
+      /* メープルウッドのグラデーション */
+      background: linear-gradient(145deg, var(--desk-light) 0%, var(--desk-dark) 100%);
+      /* ウォルナットの太い枠線 */
+      border: 8px solid var(--wood-border);
+      border-radius: 6px;
+      box-shadow: var(--shadow-desk), inset 0 0 40px rgba(0,0,0,0.04);
+      padding: 3rem 2.5rem 4rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* 真鍮のヒンジ・ジョイント（四隅） */
+    .brass-hinge {
+      position: absolute;
+      width: 12px; height: 12px;
+      background: radial-gradient(circle at 3px 3px, #FDF0C6 0%, var(--brass) 50%, var(--brass-dark) 100%);
+      border-radius: 50%;
+      box-shadow: 1px 2px 4px rgba(0,0,0,0.4), inset -1px -1px 2px rgba(0,0,0,0.2);
+    }
+    .bh-tl { top: 10px; left: 10px; }
+    .bh-tr { top: 10px; right: 10px; }
+    .bh-bl { bottom: 10px; left: 10px; }
+    .bh-br { bottom: 10px; right: 10px; }
+
+    /* ヘッダーエリア */
+    .site-header {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    /* アイコン（歯車＋ペンを木枠のタブレット内に配置したようなデザイン） */
+    .logo-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 72px; height: 72px;
+      background: var(--paper);
+      border: 3px solid var(--wood-border);
+      border-radius: 6px;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-card);
+      position: relative;
+    }
+
+    .logo-container svg {
+      width: 38px; height: 38px;
+      fill: none;
+      stroke: var(--wood-dark);
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ネジ飾り */
+    .logo-container::before {
+      content: '';
+      position: absolute;
+      top: -12px; left: 50%;
+      transform: translateX(-50%);
+      width: 8px; height: 8px;
+      background: radial-gradient(circle, var(--brass) 40%, var(--brass-dark) 100%);
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .site-title {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--wood-dark);
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.02em;
+    }
+
+    .site-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* 目次・ツール一覧エリア */
+    .lab-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      max-width: 600px;
+    }
+
+    /* ツールカード（タブレットやノートブックを模したデザイン） */
+    .lab-card {
+      display: block;
+      background: var(--paper);
+      /* タブレット風の枠 */
+      border: 4px solid var(--wood-dark);
+      border-radius: 12px;
+      padding: 1.8rem 1.6rem;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: var(--shadow-card);
+      transition: var(--transition);
+      position: relative;
+      /* 画面のような反射・質感を微妙に */
+      background-image: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(248,248,248,1) 100%);
+    }
+
+    .lab-card:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--wood-border);
+    }
+
+    .tool-badge {
+      display: inline-block;
+      background: #F1F5F9;
+      color: var(--text-muted);
+      border-radius: 4px;
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      margin-bottom: 10px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .lab-card-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--wood-dark);
+      margin-bottom: 0.8rem;
+      line-height: 1.4;
+    }
+
+    .lab-card-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .lab-card-arrow {
+      margin-top: 1.2rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--wood-border);
+      transition: var(--transition);
+    }
+
+    .lab-card:hover .lab-card-arrow {
+      gap: 12px;
+      color: var(--brass-dark);
+    }
+
+    /* フッター */
+    .site-footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      line-height: 1.8;
+      margin-top: auto;
+    }
+
+    /* スマホ向け調整 */
+    @media (max-width: 600px) {
+      .desk-container {
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        padding: 2.5rem 1.5rem 3rem;
+      }
+      .bh-tl, .bh-bl { left: 4px; }
+      .bh-tr, .bh-br { right: 4px; }
+      .site-title { font-size: 1.45rem; }
+      .lab-card { padding: 1.4rem 1.2rem; }
+      .lab-card-title { font-size: 1.15rem; }
+    }
+    /* モーダル表示用スタイル */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10000; opacity: 0; visibility: hidden;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal-content-box {
+      background: var(--paper);
+      width: 90%; max-width: 600px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 2.5rem;
+      border-radius: 12px;
+      position: relative;
+      border: 4px solid var(--wood-dark);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+    .modal-overlay.active .modal-content-box { transform: translateY(0); }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: none; border: none; font-size: 1.5rem;
+      color: var(--text-muted); cursor: pointer; line-height: 1;
+    }
+    .modal-title { font-size: 1.25rem; font-weight: 800; color: var(--wood-dark); margin-bottom: 1.5rem; border-bottom: 2px solid var(--accent-gray); padding-bottom: 0.5rem; }
+    .modal-body p { font-size: 0.95rem; color: var(--text-main); line-height: 1.7; margin-bottom: 1rem; }
+    .modal-body ul { margin-bottom: 1rem; padding-left: 1.5rem; font-size: 0.95rem; }
+    .modal-body li { margin-bottom: 0.5rem; }
+    .btn-contact-modal {
+      display: inline-block; background: linear-gradient(90deg, #7C3AED, #6366F1);
+      color: #FFF; text-decoration: none; font-weight: bold;
+      padding: 12px 24px; border-radius: 8px; transition: 0.3s;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+      margin-top: 1rem;
+    }
+    .btn-contact-modal:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); }
+
+    .footer-nav {
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .footer-nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .footer-nav a:hover { color: var(--wood-border); text-decoration: underline; }
+  </style>
+
+  <link rel="canonical" href="https://mytool-lab.com/">
+  <!-- OGP / Twitter Card -->
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mytool-lab.com/">
+  <meta property="og:title" content="見えにくい差を、計算で見える形に | ツール作成個人研究室">
+  <meta property="og:description" content="日常の手間を減らす実用Webツール集。あなたの「見えない損失」を客観的な計算で防ぎます。">
+  <meta property="og:image" content="https://mytool-lab.com/ogp-top.png">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
+  <meta name="twitter:image" content="https://mytool-lab.com/ogp-top.png">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5148634839708031"
+     crossorigin="anonymous"></script>
 </head>
 <body>
-  <a href="../index.html" class="back-to-home">← ツール作成個人研究室 トップへ戻る</a>
-  <div class="app-container">
-    <header class="app-header">
-      <h1>退職時の「見えない損失」回避シミュレーター</h1>
-      <p>退職してからでは手遅れになる前に。社会保険や手当の「もらい損ね」を防ぐタイムライン。</p>
+
+  <div class="bg-sketch"></div>
+
+  <!-- 木製の製図机を模したメインコンテナ -->
+  <div class="desk-container">
+    <div class="brass-hinge bh-tl"></div>
+    <div class="brass-hinge bh-tr"></div>
+    <div class="brass-hinge bh-bl"></div>
+    <div class="brass-hinge bh-br"></div>
+
+    <header class="site-header">
+      <div class="logo-container">
+        <!-- 歯車とペンのSVGアイコン -->
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"></path>
+          <!-- ペン（斜め配置） -->
+          <path d="M17 3l4 4L7 21H3v-4L17 3z"></path>
+        </svg>
+      </div>
+      <h1 class="site-title">ツール作成個人研究室</h1>
+      <p class="site-subtitle">さまざまなシミュレーションツールをご利用いただけます</p>
     </header>
 
-    <main>
-      <form id="user-conditions-form" class="question-form">
-        <!-- Q1 -->
-        <div class="question-card">
-          <label class="question-title" for="base-date">Q1. あなたの退職（予定）日はいつですか？ <span class="badge-required">必須</span></label>
-          <div class="date-input-wrapper">
-            <span class="calendar-icon">📅</span>
-            <input type="text" id="base-date" name="baseDate" placeholder="YYYY/MM/DD (タップまたは数字入力)" inputmode="numeric" maxlength="10" required>
-          </div>
-          <p class="date-reset-warning" style="font-size: 0.85em; color: #999; margin-top: 8px; text-align: center;">※退職日を変更すると、タスクのチェック状態がリセットされます。</p>
-        </div>
+    <section style="text-align: center; margin: 0 20px 40px; padding-bottom: 24px; border-bottom: 1px dashed var(--brass-dark);">
+      <h2 style="font-size: 1.5rem; color: var(--wood-dark); margin-bottom: 12px; font-weight: 700;">お金と時間の「見えない損失」を防ぐ。</h2>
+      <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6;">ここは、人生の面倒な計算と手続きを半自動化する「ツール作成個人研究室」です。</p>
+    </section>
 
-        <!-- Q2 -->
-        <div class="question-card">
-          <p class="question-title">Q2. 退職後、すでに次の就職先が決まっていますか？</p>
-          <div class="radio-group">
-            <label class="radio-btn">
-              <input type="radio" name="nextJob" value="yes">
-              <span class="radio-label">はい（内定あり）</span>
-            </label>
-            <label class="radio-btn">
-              <input type="radio" name="nextJob" value="no" checked>
-              <span class="radio-label">いいえ</span>
-            </label>
-            <label class="radio-btn">
-              <input type="radio" name="nextJob" value="undecided">
-              <span class="radio-label">未定</span>
-            </label>
-          </div>
-        </div>
+    <div class="lab-grid">
+      <!-- NISAシミュレーター -->
+      <a href="./nisa/index.html" class="lab-card">
+        <span class="tool-badge">資産運用</span>
+        <h2 class="lab-card-title">投資信託 比較シミュレーター</h2>
+        <p class="lab-card-desc">
+          2種類の投資信託の投資のシミュレーションを比較できるツールです。
+        </p>
+        <div class="lab-card-arrow">ツールを開く <span>→</span></div>
+      </a>
 
-        <!-- Q3 -->
-        <div class="question-card">
-          <p class="question-title">Q3. 最近、体調不良が続いている、または強いストレスや不眠はありますか？</p>
-          <p class="question-note" style="font-size: 0.85em; color: #DD6B20; margin-top: -5px; margin-bottom: 10px;">※この質問に該当する場合、傷病手当金（最大1年6ヶ月）の対象になる可能性があります</p>
-          <div class="radio-group">
-            <label class="radio-btn">
-              <input type="radio" name="healthCondition" value="true">
-              <span class="radio-label">はい（ある）</span>
-            </label>
-            <label class="radio-btn">
-              <input type="radio" name="healthCondition" value="false" checked>
-              <span class="radio-label">いいえ（ない）</span>
-            </label>
-          </div>
-        </div>
+      <!-- 住宅ローン・資産運用の最適化シミュレーター -->
+      <a href="./loan/index.html" class="lab-card">
+        <span class="tool-badge">負債管理</span>
+        <h2 class="lab-card-title">住宅ローン・資産運用の最適化シミュレーター</h2>
+        <p class="lab-card-desc">
+          住宅ローンの繰り上げ返済と、手元の資金での投資継続。どちらが最終的にお得になるのか、トータルの純資産で比較・検証できるツールです。
+        </p>
+        <div class="lab-card-arrow">ツールを使う <span>→</span></div>
+      </a>
 
-        <!-- Q4 -->
-        <div class="question-card">
-          <p class="question-title">Q4. ご自身で事業（フリーランスや会社設立）を始める予定ですか？</p>
-          <div class="radio-group">
-            <label class="radio-btn">
-              <input type="radio" name="freelance" value="true">
-              <span class="radio-label">はい（予定あり）</span>
-            </label>
-            <label class="radio-btn">
-              <input type="radio" name="freelance" value="false" checked>
-              <span class="radio-label">いいえ</span>
-            </label>
-          </div>
-        </div>
+      <!-- 引越し逆算スケジュール・コンシェルジュ -->
+      <a href="./move/index.html" class="lab-card">
+        <span class="tool-badge">生活・手続き</span>
+        <h2 class="lab-card-title">引越し逆算スケジュール・コンシェルジュ</h2>
+        <p class="lab-card-desc">
+          転出届の遅れによる過料リスクや、解約忘れによる二重家賃などの「見えない金銭的損失」を、引越し予定日からの自動逆算で防ぐチェックリストです。
+        </p>
+        <div class="lab-card-arrow">ツールを使う <span>→</span></div>
+      </a>
 
-        <!-- Q5 -->
-        <div class="question-card">
-          <p class="question-title">Q5. 会社員・公務員の配偶者はいますか？</p>
-           <div class="radio-group">
-            <label class="radio-btn">
-              <input type="radio" name="hasSpouse" value="true">
-              <span class="radio-label">はい（いる）</span>
-            </label>
-            <label class="radio-btn">
-              <input type="radio" name="hasSpouse" value="false" checked>
-              <span class="radio-label">いいえ（いない）</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="submit-area">
-          <div class="pre-submit-notice" style="background: #FFF5F5; border-left: 4px solid #E53E3E; padding: 12px 16px; margin-bottom: 20px; border-radius: 4px; font-size: 0.9em; color: #2D3748;">
-            <p style="font-weight: bold; margin-bottom: 8px;">※条件によっては、数十万円〜数百万円規模の給付・損失回避に影響します。</p>
-            <p style="margin-bottom: 4px;">この入力から以下を自動判定し、あなた専用のタイムラインを作成します：</p>
-            <ul style="margin-left: 20px; list-style-type: disc;">
-              <li>受給できる可能性のある給付金（失業保険・傷病手当など）</li>
-              <li>やらないと損する手続きと期限</li>
-              <li>社会保険の二重払いを防ぐ最適な行動タイミング</li>
-            </ul>
-          </div>
-          <button type="button" id="generate-btn" class="btn-primary">制度を最大限生かすスケジュールを作成</button>
-          <div style="margin-top: 16px;">
-            <button type="button" id="reset-btn" style="background: none; border: 1px solid #ccc; color: #999; padding: 8px 20px; border-radius: 20px; font-size: 0.85em; cursor: pointer;">入力をすべてリセット</button>
-          </div>
-        </div>
-      </form>
-
-      <section id="timeline-container" class="timeline-container" style="display: none;">
-        <h2 class="timeline-title">あなた専用のタイムライン結果</h2>
-        <div class="timeline-actions" style="text-align: center; margin-bottom: 24px;">
-          <button type="button" class="btn-copy" onclick="copyToClipboard()" style="background: #333; color: #fff; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: background 0.2s;">📋 結果をクリップボードにコピー</button>
-        </div>
-        <div id="timeline-list"></div>
-        <div class="recommend-panel" style="margin: 2rem auto; text-align: center; max-width: 600px; line-height: 1.6;">
-            <div style="text-align: right; margin-bottom: 0.5rem; padding: 0 1rem;"><span style="display: inline-block; font-size: 0.75rem; color: #4a5568; background-color: #edf2f7; padding: 2px 6px; border-radius: 4px; font-weight: bold; letter-spacing: 0.05em;">PR</span></div>
-            <p style="font-size: 0.95rem; color: #4a5568; margin-bottom: 1rem; text-align: left; padding: 0 1rem;">
-                退職後・求職中は、収入が減る一方で社会保険料などの支出が続きます。無理な節約をする前に、まずは「固定費（電気代など）」の見直しから始めるのが確実な防衛策です。今の電気代が適正か、国内最大級のサイトで一度比較してみましょう。
-            </p>
-            <div class="action-link" style="font-weight: bold; font-size: 1.1rem;">
-                <a href="https://px.a8.net/svt/ejp?a8mat=4B1JDI+AEHOAA+4CJ0+60OXE" rel="nofollow sponsored" target="_blank" style="color: #3182ce; text-decoration: underline;">
-                    👉 エネチェンジで電力比較を行う
-                </a>
-                <img border="0" width="1" height="1" src="https://www17.a8.net/0.gif?a8mat=4B1JDI+AEHOAA+4CJ0+60OXE" alt="">
-            </div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <footer class="site-footer">
-    <div class="footer-links">
-      <a href="#" onclick="openModal('modal-about'); return false;">運営者情報</a>
-      <a href="#" onclick="openModal('modal-privacy'); return false;">プライバシーポリシー・免責事項</a>
-      <a href="#" onclick="openModal('modal-contact'); return false;">お問い合わせ</a>
-    </div>
-    <div class="footer-info">
-      <p class="site-name-footer">ツール作成個人研究室</p>
-      <p class="site-desc-footer">実験的なツールも順次公開予定です。</p>
-      <p class="ad-disclosure">※当サイトは広告を含みます</p>
-    </div>
-    <p class="copyright">© 2026 ツール作成個人研究室</p>
-  </footer>
-
-  <div id="modal-overlay" class="modal-overlay" onclick="closeModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <button class="modal-close" onclick="closeModal()">×</button>
-      <div id="modal-body"></div>
-    </div>
-  </div>
-
-  <div id="data-about" style="display:none;">
-    <h2>運営者情報</h2>
-    <ul>
-      <li><strong>サイト名：</strong>ツール作成個人研究室</li>
-      <li><strong>運営者：</strong>管理人</li>
-      <li><strong>URL：</strong>https://mytool-lab.com/</li>
-      <li><strong>運営目的：</strong>日々の生活で発生する「見えない損失」を防ぐための、実用的なシミュレーションツールを個人で開発・公開しています。</li>
-    </ul>
-  </div>
-
-  <div id="data-privacy" style="display:none;">
-    <h2>プライバシーポリシー・免責事項</h2>
-    <h3>プライバシーポリシー</h3>
-    <p>当サイトでは、Googleによるアクセス解析ツール「Google Analytics」を使用しています。このGoogle Analyticsはデータの収集のためにCookieを使用しています。このデータは匿名で収集されており、個人を特定するものではありません。</p>
-    <h3>免責事項</h3>
-    <p>当サイトからのリンクやバナーなどで移動したサイトで提供される情報、サービス等について一切の責任を負いません。<br>また当サイトのコンテンツ・情報について、できる限り正確な情報を提供するように努めておりますが、正確性や安全性を保証するものではありません。当サイトに掲載された内容によって生じた損害等の一切の責任を負いかねますのでご了承ください。</p>
-  </div>
-
-  <div id="data-contact" style="display:none;">
-    <h2>お問い合わせ</h2>
-    <p>ツールに関するご意見、ご要望、不具合のご報告などは、以下のフォームよりお願いいたします。</p>
-    <div class="contact-btn-wrapper">
-      <a href="https://docs.google.com/forms/d/e/1FAIpQLSfXhEGP-qnCSzl3DimTrvZgx8mErYJ6LkWSd-lUwiHKl2DbjQ/viewform" target="_blank" rel="noopener noreferrer" class="contact-btn">
-        お問い合わせフォームを開く
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-left: 6px;">
-          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-          <polyline points="15 3 21 3 21 9"></polyline>
-          <line x1="10" y1="14" x2="21" y2="3"></line>
-        </svg>
+      <!-- 退職時の「見えない損失」回避シミュレーター -->
+      <a href="./taisyoku/index.html" class="lab-card">
+        <span class="tool-badge">仕事・手続き</span>
+        <h2 class="lab-card-title">退職時の「見えない損失」回避シミュレーター</h2>
+        <p class="lab-card-desc">
+          退職してからでは手遅れになる社会保険料の二重払いや、各種手当の「もらい損ね」を防ぐため、退職予定日から逆算したあなた専用の手続きタイムラインを自動生成します。
+        </p>
+        <div class="lab-card-arrow">ツールを使う <span>→</span></div>
       </a>
     </div>
   </div>
 
-  <script src="js/data-config.js"></script>
-  <script src="js/main.js"></script>
+  <footer class="site-footer">
+    <div class="footer-nav">
+      <a href="javascript:void(0)" onclick="openModal('modal-operator')">運営者情報</a>
+      <a href="javascript:void(0)" onclick="openModal('modal-privacy')">プライバシーポリシー・免責事項</a>
+      <a href="javascript:void(0)" onclick="openModal('modal-contact')">お問い合わせ</a>
+    </div>
+    <p><strong>ツール作成個人研究室</strong></p>
+    <p>実験的なツールも順次公開予定です。</p>
+    <p style="margin-top: 6px; font-size: 0.85em;">※当サイトは広告を含みます</p>
+    <p style="margin-top: 4px;">© 2026 ツール作成個人研究室</p>
+  </footer>
+
+  <!-- モーダルウィンドウ群 -->
+  <div id="modal-operator" class="modal-overlay" onclick="closeModal('modal-operator')">
+    <div class="modal-content-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('modal-operator')">×</button>
+      <h2 class="modal-title">運営者情報</h2>
+      <div class="modal-body">
+        <ul style="list-style: none; padding-left: 0;">
+          <li><strong>サイト名：</strong>ツール作成個人研究室</li>
+          <li><strong>運営者：</strong>管理人</li>
+          <li><strong>URL：</strong>https://mytool-lab.com/</li>
+          <li><strong>運営目的：</strong>日常の面倒な計算や手続きを半自動化し、ユーザーのお金と時間の損失を防ぐためのシミュレーションツールの公開・検証。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-privacy" class="modal-overlay" onclick="closeModal('modal-privacy')">
+    <div class="modal-content-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('modal-privacy')">×</button>
+      <h2 class="modal-title">プライバシーポリシー・免責事項</h2>
+      <div class="modal-body">
+        <p><strong>広告の配信について</strong><br>当サイトは第三者配信の広告サービス（Google AdSense等）を利用しています。広告配信事業者はユーザーの興味に応じた広告を表示するためにCookieを使用することがあります。詳細については、<a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">Googleポリシーと規約</a>をご覧ください。</p>
+        <p><strong>アクセス解析ツールについて</strong><br>当サイトではGoogle Analyticsを利用しています。データは匿名で収集されており個人を特定するものではありません。</p>
+        <p><strong>免責事項</strong><br>当サイトのシミュレーションツールは計算上の目安であり、実際の投資成果や手続きの正確性を保証するものではありません。利用によるいかなる損害についても運営者は一切の責任を負いかねます。最終判断は自己責任でお願いします。</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-contact" class="modal-overlay" onclick="closeModal('modal-contact')">
+    <div class="modal-content-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('modal-contact')">×</button>
+      <h2 class="modal-title">お問い合わせ</h2>
+      <div class="modal-body">
+        <p>当サイトに関するご意見・ご質問・不具合報告がありましたら、以下のフォームよりご連絡ください。</p>
+        <p>現在、個人運営のため返信に時間をいただく場合があります。</p>
+        <p>内容によっては回答できない場合がありますのでご了承ください。</p>
+        <p>返信が必要な内容については、確認後できる範囲で対応いたします。</p>
+        <div style="text-align: center;">
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSfXhEGP-qnCSzl3DimTrvZgx8mErYJ6LkWSd-lUwiHKl2DbjQ/viewform?usp=publish-editor" target="_blank" rel="noopener" class="btn-contact-modal">
+            📩 お問い合わせフォームはこちら
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        ['modal-operator', 'modal-privacy', 'modal-contact'].forEach(id => {
+          const modal = document.getElementById(id);
+          if (modal && modal.classList.contains('active')) {
+            closeModal(id);
+          }
+        });
+      }
+    });
+  </script>
+
 </body>
 </html>
