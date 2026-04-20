@@ -246,19 +246,19 @@
       .chart-container { height: 380px; }
     }
 
-    /* アフィリエイト広告エリア */
-    .affiliate-container {
+    /* 推奨パートナーセクション */
+    .partner-panel {
       margin: 20px auto;
       text-align: center;
       padding: 0 1rem;
     }
-    .affiliate-container p, .pr-text {
+    .partner-panel p, .pr-text {
       font-size: 0.9rem;
       color: var(--text-muted);
       margin-bottom: 0.5rem;
       line-height: 1.6;
     }
-    .affiliate-container a {
+    .partner-panel a {
       display: inline-block;
       box-sizing: border-box;
       max-width: calc(100% - 40px);
@@ -275,12 +275,12 @@
       transition: var(--transition);
       box-shadow: 0 2px 6px rgba(30, 15, 5, 0.1);
     }
-    .affiliate-container a:hover {
+    .partner-panel a:hover {
       background: #FDFBF7;
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(30, 15, 5, 0.15);
     }
-    .affiliate-container img {
+    .partner-panel img {
       vertical-align: middle;
     }
 
@@ -700,8 +700,8 @@
         </div>
       </div> <!-- 終了: infoSection -->
 
-      <!-- 広告・他ツール導線エリア -->
-      <div id="adSection" style="display:none;">
+      <!-- 推奨情報・他ツール導線エリア -->
+      <div id="resultFooter" style="display:none;">
         <div class="recommend-info-panel" style="margin: 2.5rem 0; padding: 1.5rem; background: rgba(37,99,235,0.05); border-left: 4px solid #2563EB; border-radius: 4px;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem;">
             <h3 style="font-size: 1.1rem; color: #2D3748; margin: 0;">住宅ローンの見直しについて</h3>
@@ -1089,7 +1089,7 @@
 
       document.getElementById('resultSection').style.display = 'block';
       document.getElementById('infoSection').style.display = 'block';
-      document.getElementById('adSection').style.display = 'block';
+      document.getElementById('resultFooter').style.display = 'block';
 
       const yearDebtFreeA = parseFloat((monthsAFinish / 12).toFixed(1));
       const yearDebtFreeB = parseFloat((monthsBFinish / 12).toFixed(1));
