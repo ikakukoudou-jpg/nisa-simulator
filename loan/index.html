@@ -283,6 +283,145 @@
     .affiliate-container img {
       vertical-align: middle;
     }
+
+    /* AdSense対策用解説ブロック */
+    .explanation-wrapper {
+      margin-top: 80px;
+    }
+
+    .toggle-explanation {
+      width: 100%;
+      padding: 12px;
+      font-size: 14px;
+      cursor: pointer;
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      border-radius: 4px;
+      color: #334155;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .toggle-explanation:hover {
+      background: #E2E8F0;
+    }
+
+    .explanation-content {
+      display: none;
+      margin-top: 20px;
+      line-height: 1.8;
+      font-size: 14px;
+      color: #334155;
+      background: #FFF;
+      padding: 24px;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+    }
+
+    .explanation-content h2 {
+      font-size: 1.25rem;
+      margin-bottom: 20px;
+      color: #1E293B;
+      border-left: 4px solid #4A2B15;
+      padding-left: 12px;
+    }
+
+    .explanation-content h3 {
+      font-size: 1rem;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      color: #1E293B;
+      font-weight: 700;
+    }
+
+    .explanation-content p {
+      margin-bottom: 16px;
+    }
+
+    .result-note {
+      font-size: 13px;
+      color: #64748B;
+      margin-top: -10px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /* シミュレーション解説・内部リンク */
+    .simulation-description {
+      margin: 24px 0;
+      padding: 24px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+    }
+    .simulation-description h2 {
+      font-size: 1.15rem;
+      color: #1E293B;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .simulation-description h2::before {
+      content: '📘';
+      font-size: 1.1rem;
+    }
+    .simulation-description h3 {
+      font-size: 1rem;
+      color: #1E293B;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+    .simulation-description p {
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+    .simulation-description ul {
+      margin-bottom: 16px;
+      padding-left: 1.5rem;
+    }
+    .simulation-description li {
+      font-size: 0.9rem;
+      color: #475569;
+      margin-bottom: 4px;
+    }
+    .related-articles {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px dashed #CBD5E1;
+    }
+    .related-articles h3 {
+      font-size: 0.95rem;
+      color: #1E293B;
+      margin-bottom: 12px;
+      margin-top: 0;
+    }
+    .related-articles ul {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 0;
+    }
+    .related-articles li {
+      margin-bottom: 8px;
+    }
+    .related-articles a {
+      color: #2563EB;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .related-articles a::before {
+      content: '🔗';
+      font-size: 0.8rem;
+    }
+    .related-articles a:hover {
+      text-decoration: underline;
+    }
   </style>
 
   <link rel="canonical" href="https://mytool-lab.com/loan/">
@@ -427,13 +566,19 @@
       </div>
 
       <!-- 結果エリア -->
-      <div id="result-area" class="result-area">
+      <div id="resultSection" class="result-area" style="display:none;">
         <div class="section-title" style="border-top: 2px solid #E2E8F0; padding-top: 2rem; margin-top: 0;"><span>📊</span> シミュレーション結果</div>
         <div id="alert-container" style="display:none;"></div>
         <div id="conclusion-text" class="conclusion-box">
           <!-- 計算結果文がここに入ります -->
         </div>
         <div id="reversal-box" class="reversal-box" style="display:none;"></div>
+        
+        <p class="result-note">
+          ※この結果の見方や判断の考え方はページ下部の「考え方・使い方を見る」で解説しています
+        </p>
+
+
 
         <div style="margin-bottom: 16px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 12px 16px;">
           <p style="font-size: 0.9em; color: #475569; line-height: 1.6; margin-bottom: 12px;">
@@ -465,14 +610,76 @@
         
         <p style="font-size: 0.85em; color: #64748B; text-align: right; margin-top: 40px; clear: both;">※投資利回り7%は、過去のS&P500等の実績をベースにした標準的な期待利回りとして設定しています。</p>
 
-        <div style="margin-top: 16px; padding: 16px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; font-size: 0.85em; color: #475569; line-height: 1.7;">
-          <p style="font-weight: bold; color: #334155; margin-bottom: 8px;">※シミュレーションにおける「住宅ローン控除（還付金）」の計算ルール</p>
-          <ul style="padding-left: 1.5rem;">
-            <li style="margin-bottom: 4px;"><strong>投資継続プラン：</strong> 受け取った還付金は、すべて「投資（資産運用）」に回して複利で増やす前提で計算しています。</li>
-            <li><strong>繰上返済プラン：</strong> 受け取った還付金は、すべて「ローンの繰り上げ返済（元本削減）」に追加で充てて、さらに早く借金を減らす前提で計算しています。</li>
-          </ul>
-        </div>
+      </div> <!-- 終了: resultSection -->
 
+      <!-- 解説エリア -->
+      <div id="infoSection" style="display:none;">
+        <div class="explanation-wrapper">
+          <button class="toggle-explanation">
+            ▼ このシミュレーションの考え方・使い方を見る
+          </button>
+
+          <div class="explanation-content">
+            <h2>このシミュレーションの考え方と使い方</h2>
+
+            <h3>このツールの目的</h3>
+            <p>
+              住宅ローンの繰上げ返済と投資のどちらを優先すべきか迷っている方向けに、条件ごとの違いを数値として可視化するためのシミュレーターです。
+            </p>
+
+            <h3>このツールでわかること</h3>
+            <p>
+              ・実質的に借金が消えるタイミング<br>
+              ・投資とローン残債が交差する時期<br>
+              ・最終的に手元に残る資産差
+            </p>
+
+            <h3>使い方</h3>
+            <p>
+              現在のローン残高・金利・毎月返済額・投資額を入力し、シミュレーションを実行してください。<br>
+              詳細条件を設定することで、住宅ローン控除やボーナス返済も反映できます。
+            </p>
+
+            <h3>結果の見方</h3>
+            <p>
+              表示される結果は「どちらが得か」を断定するものではなく、条件によってどのような差が生まれるかを示しています。
+            </p>
+
+            <h3>判断の考え方</h3>
+            <p>
+              一般的に、住宅ローン金利が低く、投資利回りが高い場合は投資優位になりやすくなります。<br>
+              一方で、金利が上昇する場合やリスクを抑えたい場合は繰上げ返済の価値が高まります。<br>
+              最終的な判断は、リスク許容度や資金余力を含めて行う必要があります。
+            </p>
+
+            <h3>よくある質問</h3>
+            <p>
+              <strong>Q. 投資と返済はどちらが正解？</strong><br>
+              A. 条件によって異なるため、本ツールで比較することを前提としています。<br><br>
+
+              <strong>Q. 投資利回り7%は現実的？</strong><br>
+              A. 長期平均を参考にした仮定値です。実際の市場では変動します。
+            </p>
+
+            <h3>注意点</h3>
+            <p>
+              本シミュレーションは試算であり、実際の金利・市場・税制によって結果は変動します。<br>
+              最終判断はご自身の状況に基づいて行ってください。
+            </p>
+
+            <div class="related-articles">
+              <h3>関連する解説</h3>
+              <ul>
+                <li><a href="../blog/guide/loan/loan-vs-investment.html" target="_blank" rel="noopener noreferrer">繰上げ返済と投資の判断基準</a></li>
+                <li><a href="../blog/guide/loan/loan-deduction-prepayment.html" target="_blank" rel="noopener noreferrer">住宅ローン控除と繰上げ返済の関係</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div> <!-- 終了: infoSection -->
+
+      <!-- 広告・他ツール導線エリア -->
+      <div id="adSection" style="display:none;">
         <div class="affiliate-container">
           <p>
             0.1%の金利差は、返済総額に想像以上の差を生みます。<br>
@@ -492,7 +699,7 @@
             👉 新NISAシミュレーターで具体的な銘柄を検証する
           </a>
         </div>
-      </div>
+      </div> <!-- 終了: adSection -->
 
     </div>
   </div>
@@ -500,6 +707,7 @@
   <footer class="site-footer">
     <div class="footer-inner">
       <div class="footer-nav">
+        <a href="../blog/index.html">解説・ブログ</a>
         <a href="javascript:void(0)" onclick="openModal('modal-info')">運営者情報</a>
         <a href="javascript:void(0)" onclick="openModal('modal-terms')">利用規約・免責事項</a>
         <a href="javascript:void(0)" onclick="openModal('modal-privacy')">プライバシーポリシー</a>
@@ -849,7 +1057,9 @@
         invDataB.push({ x: finalYear, y: Math.round(currentInvB / 10000) });
       }
 
-      document.getElementById('result-area').style.display = 'block';
+      document.getElementById('resultSection').style.display = 'block';
+      document.getElementById('infoSection').style.display = 'block';
+      document.getElementById('adSection').style.display = 'block';
 
       const yearDebtFreeA = parseFloat((monthsAFinish / 12).toFixed(1));
       const yearDebtFreeB = parseFloat((monthsBFinish / 12).toFixed(1));
@@ -1006,7 +1216,7 @@
       });
 
       if (shouldScroll) {
-        document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
 
@@ -1046,6 +1256,13 @@
           }
         });
       }
+    });
+    // 解説トグル
+    document.querySelector('.toggle-explanation').addEventListener('click', function () {
+      const content = document.querySelector('.explanation-content');
+      const isVisible = content.style.display === 'block';
+      content.style.display = isVisible ? 'none' : 'block';
+      this.innerText = isVisible ? '▼ このシミュレーションの考え方・使い方を見る' : '▲ 解説を閉じる';
     });
   </script>
 </body>
