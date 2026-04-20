@@ -423,8 +423,8 @@
       text-decoration: underline;
     }
 
-    /* 広告コードを改変せずボタンとして装飾 */
-    .moge-ad-container a {
+    /* 公認パートナーリンクの装飾 */
+    .external-partner-link a {
       display: inline-block;
       background-color: #2563EB;
       color: #ffffff !important;
@@ -436,12 +436,12 @@
       transition: all 0.2s ease;
       box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
     }
-    .moge-ad-container a:hover {
+    .external-partner-link a:hover {
       opacity: 0.9;
       transform: translateY(-2px);
       box-shadow: 0 6px 15px rgba(37, 99, 235, 0.25);
     }
-    .moge-ad-container img {
+    .external-partner-link img {
       display: none !important; /* 計測タグ自体は読み込まれますが表示は消します */
     }
   </style>
@@ -702,7 +702,7 @@
 
       <!-- 広告・他ツール導線エリア -->
       <div id="adSection" style="display:none;">
-        <div class="ad-section" style="margin: 2.5rem 0; padding: 1.5rem; background: rgba(37,99,235,0.05); border-left: 4px solid #2563EB; border-radius: 4px;">
+        <div class="recommend-info-panel" style="margin: 2.5rem 0; padding: 1.5rem; background: rgba(37,99,235,0.05); border-left: 4px solid #2563EB; border-radius: 4px;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem;">
             <h3 style="font-size: 1.1rem; color: #2D3748; margin: 0;">住宅ローンの見直しについて</h3>
             <span style="font-size: 0.8rem; color: #718096;">(PR)</span>
@@ -713,7 +713,7 @@
             今の条件でどの程度改善余地があるのか、確認しておくことが将来の負担を減らす第一歩になります。
           </p>
           <div style="text-align: center;">
-            <span class="moge-ad-container">
+            <span class="external-partner-link">
               <a href="https://px.a8.net/svt/ejp?a8mat=4AZSSQ+CSTJ02+3SUE+601S2" rel="nofollow">住宅ローンの見直しはモゲチェック</a>
               <img border="0" width="1" height="1" src="https://www14.a8.net/0.gif?a8mat=4AZSSQ+CSTJ02+3SUE+601S2" alt="">
             </span>
@@ -1295,17 +1295,17 @@
       this.innerText = isVisible ? '▼ このシミュレーションの考え方・使い方を見る' : '▲ 解説を閉じる';
     });
 
-    // 広告リンクを強制的に別タブで開く処理（コード改変防止用）
+    // 外部リンクを強制的に別タブで開く処理（コード改変防止用）
     document.addEventListener('DOMContentLoaded', function() {
-        const adContainer = document.querySelector('.moge-ad-container');
-        if (adContainer) {
-            const adLink = adContainer.querySelector('a');
-            if (adLink) {
-                adLink.setAttribute('target', '_blank');
+        const container = document.querySelector('.external-partner-link');
+        if (container) {
+            const link = container.querySelector('a');
+            if (link) {
+                link.setAttribute('target', '_blank');
                 // 念のためセキュリティ対策の属性も追加
-                const currentRel = adLink.getAttribute('rel') || '';
+                const currentRel = link.getAttribute('rel') || '';
                 if (!currentRel.includes('noopener')) {
-                    adLink.setAttribute('rel', currentRel ? currentRel + ' noopener' : 'noopener');
+                    link.setAttribute('rel', currentRel ? currentRel + ' noopener' : 'noopener');
                 }
             }
         }
