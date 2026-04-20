@@ -422,6 +422,28 @@
     .related-articles a:hover {
       text-decoration: underline;
     }
+
+    /* 広告コードを改変せずボタンとして装飾 */
+    .moge-ad-container a {
+      display: inline-block;
+      background-color: #2563EB;
+      color: #ffffff !important;
+      text-decoration: none !important;
+      padding: 1rem 2.5rem;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1.05rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    }
+    .moge-ad-container a:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(37, 99, 235, 0.25);
+    }
+    .moge-ad-container img {
+      display: none !important; /* 計測タグ自体は読み込まれますが表示は消します */
+    }
   </style>
 
   <link rel="canonical" href="https://mytool-lab.com/loan/">
@@ -680,14 +702,22 @@
 
       <!-- 広告・他ツール導線エリア -->
       <div id="adSection" style="display:none;">
-        <div class="affiliate-container">
-          <p>
+        <div class="ad-section" style="margin: 2.5rem 0; padding: 1.5rem; background: rgba(37,99,235,0.05); border-left: 4px solid #2563EB; border-radius: 4px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem;">
+            <h3 style="font-size: 1.1rem; color: #2D3748; margin: 0;">住宅ローンの見直しについて</h3>
+            <span style="font-size: 0.8rem; color: #718096;">(PR)</span>
+          </div>
+          <p style="font-size: 0.95rem; color: #4A5568; line-height: 1.6; margin-bottom: 1.5rem;">
             0.1%の金利差は、返済総額に想像以上の差を生みます。<br>
-            今の条件で見直し余地があるか確認しておくことが、将来の負担を減らす第一歩になります。
+            このツールで試した条件でも、わずかな違いで結果が変わったはずです。<br><br>
+            今の条件でどの程度改善余地があるのか、確認しておくことが将来の負担を減らす第一歩になります。
           </p>
-          <p class="pr-text">（※PR）</p>
-          <a href="https://px.a8.net/svt/ejp?a8mat=4AZSSQ+CSTJ02+3SUE+68MF6" rel="noopener noreferrer nofollow" target="_blank">最短5分！住宅ローンいくら減らせるか診断！モゲチェック</a>
-          <img border="0" width="1" height="1" src="https://www19.a8.net/0.gif?a8mat=4AZSSQ+CSTJ02+3SUE+68MF6" alt="">
+          <div style="text-align: center;">
+            <span class="moge-ad-container">
+              <a href="https://px.a8.net/svt/ejp?a8mat=4AZSSQ+CSTJ02+3SUE+601S2" rel="nofollow">住宅ローンの見直しはモゲチェック</a>
+              <img border="0" width="1" height="1" src="https://www14.a8.net/0.gif?a8mat=4AZSSQ+CSTJ02+3SUE+601S2" alt="">
+            </span>
+          </div>
         </div>
 
         <div style="margin-top: 32px; padding: 20px; background: #FDFBF7; border: 2px solid #E2E8F0; border-radius: 8px; text-align: center;">
@@ -1263,6 +1293,22 @@
       const isVisible = content.style.display === 'block';
       content.style.display = isVisible ? 'none' : 'block';
       this.innerText = isVisible ? '▼ このシミュレーションの考え方・使い方を見る' : '▲ 解説を閉じる';
+    });
+
+    // 広告リンクを強制的に別タブで開く処理（コード改変防止用）
+    document.addEventListener('DOMContentLoaded', function() {
+        const adContainer = document.querySelector('.moge-ad-container');
+        if (adContainer) {
+            const adLink = adContainer.querySelector('a');
+            if (adLink) {
+                adLink.setAttribute('target', '_blank');
+                // 念のためセキュリティ対策の属性も追加
+                const currentRel = adLink.getAttribute('rel') || '';
+                if (!currentRel.includes('noopener')) {
+                    adLink.setAttribute('rel', currentRel ? currentRel + ' noopener' : 'noopener');
+                }
+            }
+        }
     });
   </script>
 </body>
