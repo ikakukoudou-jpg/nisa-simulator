@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>青色申告、やるべきか判断シミュレーター | ツール作成個人研究室</title>
+  <meta name="description" content="収入ごとの損得ラインを可視化。青色申告のメリットを数字で客観的に判断するシミュレーターです。">
+
+  <meta property="og:title" content="青色申告、やるべきか判断シミュレーター | ツール作成個人研究室">
+  <meta property="og:description" content="収入ごとの損得ラインを可視化。迷いを数字で解消する判断シミュレーターです。">
+  <meta property="og:url" content="https://mytool-lab.com/aoiro/index.html">
+  <meta property="og:image" content="https://mytool-lab.com/aoiro/ogp-aoiro.png">
+  <meta property="og:site_name" content="ツール作成個人研究室">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --wall-bg: #FCFDFB;
+      --desk-light: #7E5132;
+      --desk-dark: #4A2B15;
+      --wood-border: #2B1608;
+      --wood-dark: #1E0F05;
+      --brass: #D4AF67;
+      --brass-dark: #9B7B3F;
+      --paper: #FDFBF7;
+      --text-main: #2C2C2C;
+      --text-muted: #5A5A5A;
+      --shadow-desk: 0 16px 40px rgba(30, 15, 5, 0.4);
+      --shadow-card: 0 4px 12px rgba(30, 15, 5, 0.08);
+      --transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      --accent: #2563EB;
+    }
+
+    body {
+      font-family: 'Inter', 'Noto Sans JP', sans-serif;
+      background-color: var(--wall-bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+      background-image: 
+        linear-gradient(to right, rgba(115, 107, 99, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(115, 107, 99, 0.04) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    .desk-container {
+      width: 95%; max-width: 860px;
+      margin: 3rem auto 2rem;
+      background: linear-gradient(145deg, var(--desk-light) 0%, var(--desk-dark) 100%);
+      border: 10px solid var(--wood-border);
+      border-radius: 8px;
+      box-shadow: var(--shadow-desk), inset 0 0 50px rgba(0,0,0,0.3);
+      padding: 2.5rem 2rem 3rem;
+      position: relative;
+    }
+
+    .brass-hinge {
+      position: absolute;
+      width: 14px; height: 14px;
+      background: radial-gradient(circle at 4px 4px, #FDF0C6 0%, var(--brass) 50%, var(--brass-dark) 100%);
+      border-radius: 50%;
+      box-shadow: 1px 2px 4px rgba(0,0,0,0.5), inset -1px -1px 2px rgba(0,0,0,0.3);
+    }
+    .bh-tl { top: 12px; left: 12px; }
+    .bh-tr { top: 12px; right: 12px; }
+    .bh-bl { bottom: 12px; left: 12px; }
+    .bh-br { bottom: 12px; right: 12px; }
+
+    .paper-canvas {
+      background: var(--paper);
+      border: 2px solid #E2E8F0;
+      border-radius: 6px;
+      padding: 2.5rem 2rem;
+      box-shadow: var(--shadow-card);
+      position: relative;
+    }
+
+    .header-nav {
+      margin-bottom: 2rem;
+      border-bottom: 2px dashed #CBD5E1;
+      padding-bottom: 1rem;
+    }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--text-muted); text-decoration: none;
+      font-size: 0.9rem; font-weight: 600;
+      transition: var(--transition);
+    }
+    .back-link:hover { color: var(--wood-border); }
+
+    .site-title {
+      font-size: 1.5rem; font-weight: 800; color: var(--wood-dark);
+      margin-top: 1rem; margin-bottom: 0.5rem;
+    }
+    .site-desc { font-size: 0.95rem; color: var(--text-muted); }
+
+    .section-title {
+      font-size: 1.15rem; font-weight: 700; color: var(--wood-dark);
+      margin-top: 2rem; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      background: #FFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+    }
+
+    .question-label {
+      display: block;
+      font-weight: 700;
+      color: var(--wood-dark);
+      margin-bottom: 0.8rem;
+      font-size: 1.05rem;
+    }
+
+    /* ラジオボタンのスタイリング */
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .radio-label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      font-weight: 500;
+      background: #F8FAFC;
+      border: 1px solid #CBD5E1;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      transition: var(--transition);
+      user-select: none;
+    }
+
+    .radio-label:hover {
+      background: #F1F5F9;
+      border-color: #94A3B8;
+    }
+
+    .radio-label input[type="radio"] {
+      margin-right: 0.5rem;
+      transform: scale(1.2);
+    }
+
+    .radio-label:has(input[type="radio"]:checked) {
+      background: #EFF6FF;
+      border-color: #3B82F6;
+      color: #1D4ED8;
+    }
+
+    .input-wrapper { 
+      display: flex; 
+      align-items: stretch; 
+      border: 1px solid #94A3B8; 
+      border-radius: 4px; 
+      overflow: hidden; 
+      max-width: 300px;
+    }
+    .input-field { 
+      flex: 1; 
+      border: none; 
+      padding: 10px 12px; 
+      font-size: 1.1rem; 
+      font-weight: 600; 
+      color: var(--text-main);
+      outline: none; 
+      width: 100%; 
+    }
+    .input-field:focus { background: #F8FAFC; }
+    .input-unit { 
+      display: flex; align-items: center; 
+      background: #E2E8F0; color: var(--text-main); 
+      padding: 0 16px; font-size: 0.95rem; font-weight: 700; 
+      border-left: 1px solid #94A3B8; white-space: nowrap; 
+    }
+
+    .action-container { margin-top: 2rem; text-align: center; }
+    .btn-calc {
+      background: var(--wood-border); color: #FFF;
+      border: none; border-radius: 6px; padding: 12px 32px;
+      font-size: 1.1rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: var(--transition);
+    }
+    .btn-calc:hover { background: var(--desk-dark); transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+
+    /* 結果エリア */
+    .result-area { margin-top: 3rem; display: none; }
+
+    .result-status {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--wood-dark);
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 6px;
+    }
+    
+    .status-blue { background: #E0F2FE; color: #0369A1; border: 2px solid #BAE6FD; }
+    .status-warning { background: #FEF3C7; color: #B45309; border: 2px solid #FDE68A; }
+    .status-white { background: #F1F5F9; color: #334155; border: 2px solid #E2E8F0; }
+
+    .conclusion-box {
+      background: #FFF; border: 1px solid #CBD5E1; border-radius: 6px;
+      padding: 1.5rem; margin-bottom: 2rem; line-height: 1.6;
+    }
+
+    .reason-list {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px dashed #CBD5E1;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+    .reason-list ul {
+      padding-left: 1.5rem;
+      margin-top: 0.5rem;
+    }
+    .reason-list li { margin-bottom: 0.25rem; }
+
+    .affiliate-container {
+      margin: 20px auto 0;
+      text-align: center;
+      background: #FDFBF7;
+      padding: 1.5rem;
+      border: 2px dashed #D4AF67;
+      border-radius: 8px;
+    }
+    .affiliate-container p {
+      font-size: 1rem;
+      color: var(--wood-dark);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+    .affiliate-container a {
+      display: inline-block;
+      box-sizing: border-box;
+      padding: 12px 24px;
+      background: #FFFFFF;
+      color: #4A2B15;
+      border: 2px solid #4A2B15;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: var(--transition);
+      box-shadow: 0 2px 6px rgba(30, 15, 5, 0.1);
+    }
+    .ad-section { margin: 24px 0; padding: 24px 20px 16px; border: 1px dashed var(--wood-light); border-radius: 8px; background-color: rgba(255,255,255,0.5); position: relative; }
+    .ad-bridge-title { font-weight: bold; font-size: 1.05rem; color: var(--wood-dark); margin-bottom: 8px; }
+    .ad-main-description { font-size: 0.95rem; line-height: 1.7; color: var(--text-main); margin-bottom: 6px; }
+    .ad-sub-note { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 16px; }
+    .ad-card { border: 1px solid #E2E8F0; background-color: #FFF; border-radius: 8px; padding: 16px; margin-bottom: 14px; transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s; cursor: pointer; }
+    .ad-card:hover { background-color: #F8FAFC; border-color: var(--accent); box-shadow: 0 2px 8px rgba(37,99,235,0.08); }
+    .card-catch { display: block; font-size: 0.88rem; color: var(--text-muted); margin-bottom: 6px; }
+    .card-link-area a { font-size: 1.1rem; font-weight: bold; text-decoration: none; color: var(--accent); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .card-link-area a:hover { text-decoration: underline; }
+    .cta-text { font-size: 0.9rem; font-weight: 600; color: var(--accent); margin-left: 4px; white-space: nowrap; }
+    .ad-footer-note { font-size: 0.75rem; color: #718096; margin-top: 4px; margin-bottom: 0; }
+    .pr-badge { display: inline-block; font-size: 0.7rem; color: #4a5568; background-color: #edf2f7; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+    .tax-advisor-section { margin: 16px 0 24px 0; }
+    .tax-advisor-card { border: 1px solid #E2E8F0; background-color: #FAFAFA; border-radius: 8px; padding: 16px; }
+    .tax-title { font-weight: bold; margin-bottom: 8px; font-size: 1.05rem; }
+    .tax-description { font-size: 0.95rem; margin-bottom: 10px; line-height: 1.6; color: var(--text-main); }
+    .tax-link { display: inline-block; color: #2563EB; text-decoration: underline; font-weight: bold; }
+    .tax-note { font-size: 0.8rem; color: #718096; margin-top: 8px; }
+    .affiliate-container a:hover {
+      background: #F8FAFC;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(30, 15, 5, 0.15);
+    }
+    
+    .footer-note {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .footer-links a {
+      margin: 0 10px;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .copyright {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #999;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      z-index: 999;
+    }
+
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 20px;
+      width: 90%;
+      max-width: 500px;
+      border-radius: 12px;
+      display: none;
+      z-index: 1000;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal h2 {
+      margin-top: 0;
+    }
+
+    .close {
+      position: absolute;
+      right: 15px;
+      top: 10px;
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    .contact-button {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 12px 20px;
+      background: linear-gradient(45deg, #7b5cff, #5a9cff);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+    }
+
+    /* 次にやること セクション */
+    .next-actions-container {
+      margin-top: 2rem;
+    }
+    .next-actions-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--wood-dark);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .action-card {
+      display: block;
+      width: 100%;
+      background: #FFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      transition: var(--transition);
+      text-align: left;
+      cursor: pointer;
+      color: inherit;
+      text-decoration: none;
+    }
+    .action-card:hover {
+      border-color: #94A3B8;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .action-card.featured {
+      border: 2px solid #3B82F6;
+      background: #EFF6FF;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    }
+    .action-accordion-content {
+      display: none;
+      padding-top: 1rem;
+      margin-top: 1rem;
+      border-top: 1px dashed #CBD5E1;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--text-main);
+      font-weight: normal;
+    }
+    .action-accordion-content.active {
+      display: block;
+    }
+    .action-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 0.5rem;
+    }
+    .action-number {
+      background: var(--wood-dark);
+      color: #FFF;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .action-name {
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: var(--wood-dark);
+    }
+    .action-desc {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+    .featured .action-name {
+      color: #1D4ED8;
+    }
+
+    /* 詳細説明 折りたたみ */
+    .details-toggle-container {
+      margin-top: 2rem;
+      text-align: center;
+    }
+    .btn-toggle-details {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid #CBD5E1;
+      color: var(--text-muted);
+      padding: 0.75rem 1.8rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 6px rgba(30, 15, 5, 0.08);
+    }
+    .btn-toggle-details:hover {
+      background: #FFFFFF;
+      color: var(--wood-dark);
+      border-color: #94A3B8;
+      box-shadow: 0 4px 10px rgba(30, 15, 5, 0.12);
+    }
+    .details-content {
+      display: none;
+      margin-top: 1.5rem;
+      padding: 1.5rem 1.25rem;
+      background: #FFFFFF;
+      border-radius: 8px;
+      border: 1px solid #E2E8F0;
+      box-shadow: 0 2px 8px rgba(30, 15, 5, 0.06);
+      text-align: left;
+    }
+    .details-content.active {
+      display: block;
+    }
+    .detail-item {
+      margin-bottom: 1.5rem;
+    }
+    .detail-item:last-child {
+      margin-bottom: 0;
+    }
+    .detail-item-title {
+      font-weight: 800;
+      color: var(--wood-dark);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 1rem;
+    }
+    .detail-item-desc {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      line-height: 1.7;
+    }
+    .supplement-note {
+      font-size: 0.85rem;
+      color: #64748B;
+      text-align: center;
+      margin-top: -1rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 600px) {
+      .desk-container { width: 100%; border-radius: 0; border-width: 0; margin-top: 0; padding: 1.5rem 1rem; }
+      .paper-canvas { padding: 1.5rem 1rem; }
+      .bh-tl, .bh-tr, .bh-bl, .bh-br { display: none; }
+      .radio-group { flex-direction: column; gap: 0.5rem; }
+    }
+
+    .tool-description {
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      background: #fafafa;
+      line-height: 1.8;
+    }
+    .tool-description summary {
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .tool-description[open] {
+      padding-bottom: 20px;
+    }
+    .tool-description h2 {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    .tool-description ul {
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="desk-container">
+    <div class="brass-hinge bh-tl"></div>
+    <div class="brass-hinge bh-tr"></div>
+    <div class="brass-hinge bh-bl"></div>
+    <div class="brass-hinge bh-br"></div>
+
+    <div class="paper-canvas">
+      
+      <div class="header-nav">
+        <a href="../" class="back-link">← トップページへ戻る</a>
+        <h1 class="site-title">青色申告 判断シミュレーター</h1>
+        <p class="site-desc">副業・開業者向け</p>
+      </div>
+
+      <details class="tool-description">
+        <summary>このツールについて（クリックで開く）</summary>
+
+        <h2>このツールでわかること</h2>
+        <p>
+        このツールは、副業や個人事業の収入がある方に向けて、
+        「白色申告」と「青色申告」のどちらが適しているかを簡易的に判断するためのシミュレーターです。
+        </p>
+        <p>
+        入力された情報をもとに、一般的な制度の特徴や傾向に基づいて、
+        どちらの申告方法が有利になりやすいかを分かりやすく提示します。
+        </p>
+
+        <h2>どのような人が使うべきか</h2>
+        <ul>
+        <li>副業で収入が発生し始めた方</li>
+        <li>確定申告が必要かどうかを判断したい方</li>
+        <li>白色申告のままでよいのか迷っている方</li>
+        <li>青色申告に切り替えるメリットがあるか知りたい方</li>
+        </ul>
+
+        <h2>判定の考え方（重要）</h2>
+        <p>
+        白色申告と青色申告の違いは、「手間」と「得られるメリット」のバランスにあります。
+        </p>
+
+        <p>一般的に、</p>
+        <ul>
+        <li>収入が安定している</li>
+        <li>経費が一定以上ある</li>
+        <li>継続的に活動している</li>
+        </ul>
+        <p>
+        といった条件が揃うほど、青色申告のメリットを受けやすくなります。
+        </p>
+
+        <p>一方で、</p>
+        <ul>
+        <li>収入が少額または不安定</li>
+        <li>単発的な収入が中心</li>
+        <li>経費がほとんどない</li>
+        </ul>
+        <p>
+        といった場合は、手間に対してメリットが小さくなるため、
+        白色申告のままでも大きな差が出にくい傾向があります。
+        </p>
+
+        <h2>結果の読み方</h2>
+        <p>
+        このツールの判定結果は、「どちらを選ぶべきかを断定するもの」ではありません。
+        </p>
+
+        <p>あくまで、</p>
+        <ul>
+        <li>現時点の条件でどちらが有利になりやすいか</li>
+        <li>どの要素が判断に影響しているか</li>
+        </ul>
+        <p>
+        を整理するためのものです。
+        </p>
+
+        <h2>判断の分岐（このツールの価値）</h2>
+        <p>
+        確定申告において重要なのは、
+        <strong>自分の状況に対して、どの選択が合理的か</strong>
+        という視点です。
+        </p>
+
+        <h2>利用上の注意</h2>
+        <p>
+        本ツールは一般的な制度情報をもとにした簡易的な判断支援ツールです。
+        実際の税額や適用条件は個別の状況によって異なります。
+        </p>
+        <p>
+        最終的な申告内容や判断については、必ず公式情報または専門家にご確認ください。
+        </p>
+
+      </details>
+
+      <div id="article1-link" class="article-link-container"></div>
+
+      <div id="form-container">
+        
+        <div class="section-title"><span>📝</span> あなたの状況を教えてください</div>
+        
+        <div class="form-group">
+          <label class="question-label" for="revenue">① 年間の副業売上（受け取った総額）</label>
+          <p style="font-size: 0.85rem; color: #64748B; margin-top: 0.1rem; margin-bottom: 0.8rem;">※ 経費はまだ引かないでください（あとで簡単に確認します）<br>例：売上100万円・経費30万円 → ここでは100万円を入力</p>
+          <div class="input-wrapper">
+            <input type="number" id="revenue" class="input-field" value="100" min="0" max="1000">
+            <span class="input-unit">万円</span>
+          </div>
+          <input type="range" id="revenue-range" min="0" max="300" step="1" value="100" style="width: 100%; margin-top: 15px; accent-color: var(--wood-dark); cursor: pointer;">
+        </div>
+
+        <div class="form-group">
+          <label class="question-label">② 経費は売上のどのくらいですか？</label>
+          <p style="font-size: 0.85rem; color: #64748B; margin-top: 0.1rem; margin-bottom: 0.8rem;">ざっくりとした割合で構いません</p>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="expense" value="0" checked> ほぼなし（0〜10%）
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="expense" value="1"> 少しある（10〜30%）
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="expense" value="2"> 多い（30%以上）
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="expense" value="3"> わからない
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="question-label">③ この収入は今後どうなりそうですか？</label>
+          <p style="font-size: 0.85rem; color: #64748B; margin-top: 0.1rem; margin-bottom: 0.8rem;">今後の見通しについて最も近いものをお選びください</p>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="continuity" value="0"> 一度きりの収入
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="continuity" value="1"> ときどき発生する
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="continuity" value="2" checked> 毎月または定期的にある
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="continuity" value="3"> まだわからない
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="question-label">④ 開業届の提出状況</label>
+          <p style="font-size: 0.85rem; color: #64748B; margin-top: 0.1rem; margin-bottom: 0.8rem;">現在の状況を教えてください</p>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="status" value="0" checked> 提出していない
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="status" value="1"> 提出済み
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="question-label">⑤ 本業年収（任意）</label>
+          <p style="font-size: 0.85rem; color: #64748B; margin-top: 0.1rem; margin-bottom: 0.8rem;">差し支えなければお選びください</p>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="main_income" value="none" checked> 未入力（設定しない）
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="main_income" value="0"> 300万未満
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="main_income" value="1"> 300〜600万
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="main_income" value="2"> 600万以上
+            </label>
+          </div>
+        </div>
+
+        <div class="action-container">
+          <button id="btn-calculate" class="btn-calc">判定する</button>
+        </div>
+
+      </div>
+
+      <!-- 結果エリア -->
+      <div id="result-area" class="result-area">
+        <div class="section-title" style="border-top: 2px solid #E2E8F0; padding-top: 2rem; margin-top: 0;"><span>📊</span> 判定結果</div>
+        
+        <!-- ① 判定結果 -->
+        <div id="result-status-box" class="result-status"></div>
+        
+        <!-- ② 簡易説明＋補足誘導 -->
+        <div class="conclusion-box">
+          <p id="result-text" style="font-weight: 700; color: var(--wood-dark); font-size: 1.1rem; text-align: center; margin-bottom: 1rem;"></p>
+          
+          <div class="reason-list">
+            <p style="font-weight: 600; margin-bottom: 0.5rem;">【判定の理由】</p>
+            <ul id="reason-ul"></ul>
+            <p style="font-size: 0.85rem; color: #64748B; margin-top: 1rem; border-top: 1px dashed #CBD5E1; padding-top: 0.5rem;">
+              ※詳しい理由は下の「詳細説明」で確認できます
+            </p>
+          </div>
+        </div>
+
+        <div id="article23-link" class="article-link-container"></div>
+
+        <!-- ③ 詳細説明（開閉ボタン） -->
+        <div class="details-toggle-container">
+          <button id="btn-toggle-details" class="btn-toggle-details">
+            <span id="toggle-icon">▼</span> 詳細説明を確認する
+          </button>
+          <div id="details-content" class="details-content">
+            <!-- JSで動的に生成 -->
+          </div>
+          <div id="article4-link" class="article-link-container"></div>
+        </div>
+
+        <!-- ④ 次にやること（行動導線） -->
+        <div id="next-actions-area" class="next-actions-container">
+          <!-- JSで動的に生成 -->
+        </div>
+        
+        <div id="ads-area"></div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // 税理士導線URL（将来差し替え用）
+    const taxAdvisorUrl = "#";
+
+    // 開発者向け：広告クリックログ確認用
+    window.getAdLogs = function() {
+      return JSON.parse(localStorage.getItem("ad_click_logs") || "[]");
+    };
+
+    // 副業収入：数値入力とスライダーの双方向バインディング
+    const revenueInput = document.getElementById('revenue');
+    const revenueRange = document.getElementById('revenue-range');
+
+    revenueInput.addEventListener('input', function() {
+      let val = parseFloat(this.value) || 0;
+      if (val > 300) val = 300; // スライダーの上限に合わせる場合はここで調整
+      revenueRange.value = val;
+    });
+
+    revenueRange.addEventListener('input', function() {
+      revenueInput.value = this.value;
+    });
+
+    document.getElementById('btn-calculate').addEventListener('click', function() {
+      console.log("判定ボタン押下");
+
+      document.getElementById('article1-link').innerHTML = '';
+      document.getElementById('article23-link').innerHTML = '';
+      document.getElementById('article4-link').innerHTML = '';
+      document.getElementById('next-actions-area').innerHTML = '';
+      const adsArea = document.getElementById('ads-area');
+      if (adsArea) adsArea.innerHTML = '';
+
+      // ラジオボタンの値を安全に取得する関数
+      const getRadioValue = (name) => {
+        const el = document.querySelector(`input[name="${name}"]:checked`);
+        return el ? el.value : null;
+      };
+
+      // 値の取得とバリデーション
+      let revenue = parseFloat(revenueInput.value);
+      if (isNaN(revenue)) revenue = 0;
+
+      const expenseVal = getRadioValue("expense");
+      const continuityVal = getRadioValue("continuity");
+      const statusVal = getRadioValue("status");
+      const mainIncomeVal = getRadioValue("main_income");
+
+      // 必須入力チェック
+      if (expenseVal === null || continuityVal === null || statusVal === null) {
+        alert("必須項目を選択してください");
+        return;
+      }
+
+      const expense = parseInt(expenseVal);
+      const continuity = parseInt(continuityVal);
+      const status = parseInt(statusVal);
+      
+      let mainIncome = null;
+      if (mainIncomeVal !== null && mainIncomeVal !== 'none') {
+        mainIncome = parseInt(mainIncomeVal);
+      }
+
+      let resultType = ''; // 'expert', 'blue', 'white', 'middle'
+      let resultMsg = '';
+      let resultTitle = '';
+      let reasons = [];
+
+      // ========================================
+      // 判定ロジック（完全条件分岐）
+      // ========================================
+
+      // STEP6対応（わからない場合）
+      if (expense === 3 || continuity === 3) {
+        resultType = 'middle';
+        resultTitle = 'どちらも検討';
+        resultMsg = '状況が定まってから判断するのが確実です';
+      }
+      // STEP1：専門家推奨
+      else if (revenue >= 300 && continuity === 2 && expense === 2) {
+        resultType = 'expert';
+        resultTitle = '専門家相談を推奨';
+        resultMsg = '収入規模や条件の複雑さから、専門家への相談をおすすめします';
+      }
+      // STEP2：青色申告推奨
+      else if (continuity === 2 && (expense === 1 || expense === 2)) {
+        resultType = 'blue';
+        resultTitle = '青色申告を推奨';
+        resultMsg = '条件的に青色申告の控除を十分に活かせる可能性が高いです';
+      }
+      // STEP3：白色申告推奨
+      else if (continuity === 0 || expense === 0) {
+        resultType = 'white';
+        resultTitle = '白色申告を推奨';
+        resultMsg = '現時点では記帳の手間が少ない白色申告のほうが確実です';
+      }
+      // STEP4：検討
+      else {
+        resultType = 'middle';
+        resultTitle = 'どちらも検討';
+        resultMsg = '今後の状況変化や具体的な違いを把握してからの判断をおすすめします';
+      }
+
+      // ========================================
+      // 理由の動的生成
+      // ========================================
+      if (continuity === 2) reasons.push('継続的な収入があるため');
+      if (continuity === 1) reasons.push('収入が不規則・不定期であるため');
+      if (continuity === 0) reasons.push('一時的な収入のため');
+      if (expense === 1 || expense === 2) reasons.push('経費計上のメリットが見込めるため');
+      if (expense === 0) reasons.push('経費が少なく、税制メリットが得られにくいため');
+      if (expense === 3 || continuity === 3) reasons.push('情報が不足しており、まだ判断が難しいため');
+      if (revenue >= 300) reasons.push('売上が高額（300万以上）であるため');
+
+      // 重複排除と出力
+      reasons = [...new Set(reasons)];
+      if (reasons.length === 0) {
+        reasons.push('条件から明確なメリットが読み取りにくい状態です');
+      }
+
+      // UI反映
+      const statusBox = document.getElementById('result-status-box');
+      const textBox = document.getElementById('result-text');
+      const ulBox = document.getElementById('reason-ul');
+      const detailsBox = document.getElementById('details-content');
+      
+      // スタイルリセット
+      statusBox.className = 'result-status';
+      if (resultType === 'white') statusBox.classList.add('status-white');
+      else if (resultType === 'middle') statusBox.classList.add('status-warning');
+      else if (resultType === 'blue') statusBox.classList.add('status-blue');
+      else if (resultType === 'expert') statusBox.classList.add('status-warning');
+
+      statusBox.textContent = `判定：${resultTitle}`;
+
+      // インパクトボックスの挿入用コンテナを取得または作成
+      let impactBoxEl = document.getElementById('impact-box');
+      if (!impactBoxEl) {
+        impactBoxEl = document.createElement('div');
+        impactBoxEl.id = 'impact-box';
+        statusBox.parentNode.insertBefore(impactBoxEl, statusBox.nextSibling);
+      }
+      // インパクト表示はフェーズ決定後に実行（後方で innerHTML をセット）
+      textBox.textContent = resultMsg;
+
+      ulBox.innerHTML = '';
+      reasons.forEach(r => {
+        const li = document.createElement('li');
+        li.textContent = r;
+        ulBox.appendChild(li);
+      });
+
+      // 詳細説明の生成（簡略化＋ブログ誘導）
+      let detailsHTML = `
+        <div class="detail-item">
+          <div class="detail-item-desc">
+            所得規模や事業の継続性を踏まえた判定結果です。具体的な条件や、白色・青色のより詳しい違いについては、以下の解説記事をご確認ください。
+          </div>
+        </div>
+        <div class="detail-item" style="margin-top: 1rem;">
+          <a href="../blog/guide/aoiro/article2.html" target="_blank" style="color: var(--accent); text-decoration: underline; font-weight: bold;">
+            → 白色申告と青色申告の違いを詳しく見る
+          </a>
+        </div>
+        <div class="detail-item" style="margin-top: 0.5rem;">
+          <div class="detail-item-desc" style="font-size: 0.85rem; color: #64748B; margin-top: 0.5rem;">※詳しく知りたい方は、<a href="https://www.nta.go.jp/" target="_blank" rel="noopener noreferrer" style="color: var(--accent);">国税庁の公式情報</a>も併せてご確認ください。</div>
+        </div>
+      `;
+
+      detailsBox.innerHTML = detailsHTML;
+      detailsBox.classList.remove('active');
+      document.getElementById('toggle-icon').textContent = '▼';
+
+      // リンク記事の動的挿入
+      const linkStyle = "margin-bottom: 1.5rem; padding: 1rem; background: #FFF; border: 1px solid #E2E8F0; border-radius: 6px; font-size: 0.95rem; color: var(--text-main); border-left: 4px solid #3B82F6;";
+
+      document.getElementById('article1-link').innerHTML = 
+        '<div style="' + linkStyle + '">💡 副業の確定申告はいくらから必要？基準が分からない方は<a href="../blog/guide/aoiro/article1.html" target="_blank" style="color: #2563EB; font-weight: bold; text-decoration: underline;">こちら</a></div>';
+
+      let article23HTML = '<div style="' + linkStyle + '">💡 白色申告と青色申告の違いを整理したい場合は、<a href="../blog/guide/aoiro/article2.html" target="_blank" style="color: #2563EB; font-weight: bold; text-decoration: underline;">こちらの概要ガイド</a>を確認してください。';
+      if (resultType === 'blue' || resultType === 'expert') {
+        article23HTML += '<br><span style="margin-top: 0.5rem; display: inline-block;">📘 青色申告の具体的なメリットについては、<a href="../blog/guide/aoiro/article3.html" target="_blank" style="color: #2563EB; font-weight: bold; text-decoration: underline;">こちらの解説</a>が参考になります。</span>';
+      }
+      article23HTML += '</div>';
+      document.getElementById('article23-link').innerHTML = article23HTML;
+
+      if (expense >= 1) {
+        document.getElementById('article4-link').innerHTML = 
+          '<div style="' + linkStyle + ' margin-top: 1.5rem;">📘 経費の考え方が不安な方は、<a href="../blog/guide/aoiro/article4.html" target="_blank" style="color: #2563EB; font-weight: bold; text-decoration: underline;">こちらの判断基準</a>で整理できます。</div>';
+      }
+
+      // ========================================
+      // スコアリング・エンジン（プロモーション構造）
+      // ========================================
+      let advisorScore = 0;
+
+      // 基礎スコア（収入帯）
+      if (revenue >= 300) advisorScore += 3;
+      else if (revenue >= 260) advisorScore += 2;
+      else if (revenue >= 220) advisorScore += 1;
+
+      // 状況補正（経費・継続性）
+      if (expense >= 2) advisorScore += 1;  // 経費が多い
+      if (continuity >= 2) advisorScore += 1; // 継続性が高い
+
+      // フェーズ決定
+      let judgmentPhase = 1;
+      if (advisorScore >= 4) judgmentPhase = 4;
+      else if (advisorScore === 3) judgmentPhase = 3;
+      else if (advisorScore === 2) judgmentPhase = 2;
+
+      // 判定結果との整合性チェック（青色/専門家判定なのにPhase1にならないようフロア設定）
+      if ((resultType === 'blue' || resultType === 'expert' || resultType === 'middle') && judgmentPhase < 2) {
+        judgmentPhase = 2;
+      }
+      if (resultType === 'expert' && judgmentPhase < 3) {
+        judgmentPhase = 3;
+      }
+
+      // ========================================
+      // 節税インパクトの簡易計算
+      // ========================================
+      const expenseRatioMap = { 0: 0.05, 1: 0.20, 2: 0.35, 3: 0.15 };
+      const expenseRatio = expenseRatioMap[expense] || 0.10;
+      const annualRevenue = revenue * 10000; // 万円→円
+      const estimatedExpense = annualRevenue * expenseRatio;
+
+      let lowImpact = Math.round(((estimatedExpense * 0.10) * 0.5) / 10000);
+      let highImpact = Math.round(((estimatedExpense * 0.20) * 1.2) / 10000);
+
+      // バリデーション
+      if (lowImpact < 1) lowImpact = 1;
+      if (highImpact > 15) highImpact = 15;
+      if (lowImpact > highImpact) lowImpact = highImpact;
+
+      // 中央値・レンジ幅の算出
+      const medianImpact = (lowImpact + highImpact) / 2; // 万円単位
+      const medianDisplay = Math.round(medianImpact);
+      const isWideRange = (lowImpact > 0 && highImpact / lowImpact >= 3);
+      const wideRangeNote = isWideRange
+        ? `<span style="font-size: 0.85em; color: #718096; display: block; margin-top: 4px;">※幅があるのは、経費や控除の適用条件によって差が出るためです</span>`
+        : '';
+
+      // インパクトボックスのHTML生成
+      if (judgmentPhase >= 2 && judgmentPhase <= 3) {
+        impactBoxEl.innerHTML = `
+          <div style="margin: 15px 0; padding: 10px; border-left: 4px solid var(--accent); background: rgba(37,99,235,0.05); border-radius: 0 6px 6px 0;">
+            <p style="font-weight: bold; margin-bottom: 5px;">この条件では、青色申告を検討した方が良いです</p>
+            <p style="font-size: 1.1rem;">年間 約<strong>${lowImpact}万円〜${highImpact}万円程度</strong>の差が出る可能性があります</p>
+            <p style="font-size: 0.95rem; color: #334155; margin-top: 4px;">（目安：${medianDisplay}万円前後）</p>
+            <p style="font-size: 0.9rem; color: #4a5568; margin-top: 5px;">※控除や経費計上の影響を考慮した目安です</p>
+          </div>
+        `;
+      } else if (judgmentPhase === 4) {
+        impactBoxEl.innerHTML = `
+          <div style="margin: 15px 0; padding: 10px; border-left: 4px solid #D97706; background: rgba(217,119,6,0.05); border-radius: 0 6px 6px 0;">
+            <p style="font-weight: bold; margin-bottom: 5px;">専門家への相談を優先的に検討すべき段階です</p>
+            <p style="font-size: 1.1rem;">方法や経費処理により、年間 約<strong>${lowImpact}万円〜${highImpact}万円以上</strong>の差が出る可能性があります</p>
+            <p style="font-size: 0.95rem; color: #334155; margin-top: 4px;">（目安：${medianDisplay}万円前後）</p>
+            <p style="font-size: 0.9rem; color: #4a5568; margin-top: 5px;">※控除や経費計上の影響を考慮した目安です</p>
+          </div>
+        `;
+      } else {
+        impactBoxEl.innerHTML = `
+          <div style="margin: 15px 0; padding: 10px; border-left: 4px solid #718096; background: rgba(113,128,150,0.05); border-radius: 0 6px 6px 0;">
+            <p style="font-weight: bold; margin-bottom: 5px;">現状のままでも大きな差は出にくいと考えられます</p>
+            <p style="font-size: 1.0rem;">年間の差は小さい可能性が高いです（数千円〜数万円程度）</p>
+          </div>
+        `;
+      }
+
+      // ========================================
+      // 税理士リンクの表示制御
+      // ========================================
+      let taxLinkHTML = "";
+      if (!taxAdvisorUrl || taxAdvisorUrl === "#") {
+        taxLinkHTML = `<span style="opacity:0.6; cursor:not-allowed;">税理士の無料相談（準備中）</span>`;
+      } else {
+        taxLinkHTML = `<a href="${taxAdvisorUrl}" target="_blank" rel="nofollow sponsored" style="color: #0066cc; text-decoration: underline; font-weight: bold;">税理士の無料相談を確認する</a>`;
+      }
+
+      // ========================================
+      // 「次にやること」の動的生成（中央値ベースCTA）
+      // ========================================
+      const nextActionsArea = document.getElementById('next-actions-area');
+      
+      let nextActionsHTML = `<h3 class="next-actions-title"><span>🚀</span> 次にやること</h3>`;
+
+      // 中央値ベースのCTAゾーン判定（万円単位で比較）
+      // medianImpact < 3 → 低額ゾーン（現状維持優先）
+      // medianImpact >= 3 && < 8 → 中額ゾーン（会計ソフト推奨）
+      // medianImpact >= 8 → 高額ゾーン（専門家推奨）
+      if (medianImpact < 3) {
+        // 低額ゾーン：現状維持を優先
+        nextActionsHTML += `
+          <ul style="list-style: none; padding: 0; margin: 0;">
+            <li class="action-card featured" style="cursor: default;">
+              <div class="action-header">
+                <span class="action-number">1</span>
+                <span class="action-name">【推奨】現状のまま（白色申告で）進める</span>
+              </div>
+              <p class="action-desc" style="text-align: left;">今の収入規模であれば、追加の負担なく今の方法で進めるのが最も合理的です。</p>
+            </li>
+            <li class="action-card" style="cursor: default;">
+              <div class="action-header">
+                <span class="action-number">2</span>
+                <span class="action-name">記録方法を簡単に確認する</span>
+              </div>
+              <p class="action-desc" style="text-align: left;">最低限必要な帳簿の付け方だけ確認しておきましょう。 → <a href="../blog/guide/aoiro/article5.html" target="_blank" style="color: #2563EB; font-weight: bold; text-decoration: underline;">負担を減らす管理方法</a></p>
+            </li>
+            <li class="action-card" style="cursor: default;">
+              <div class="action-header">
+                <span class="action-number">3</span>
+                <span class="action-name">会計ソフトの利用を検討する</span>
+              </div>
+              <p class="action-desc" style="text-align: left;">将来的に収入が増え、節税メリットが大きくなった時のための選択肢です。</p>
+            </li>
+          </ul>
+        `;
+      } else if (medianImpact < 8) {
+        // 中額ゾーン：会計ソフトを推奨
+        nextActionsHTML += `
+          <ul style="list-style: none; padding: 0; margin: 0;">
+            <li class="action-card featured" style="cursor: default;">
+              <div class="action-header">
+                <span class="action-number">1</span>
+                <span class="action-name">【推奨】会計ソフトで効率化する</span>
+              </div>
+              <p class="action-desc" style="text-align: left;">手間を減らして正確に処理（※下部のツール案内へ）</p>
+            </li>
+            <li class="action-card" style="cursor: default;">
+              <div class="action-header">
+                <span class="action-number">2</span>
+                <span class="action-name">負担を減らす方法を記事で読む</span>
+              </div>
+              <p class="action-desc" style="text-align: left;">最低限の管理だけ理解 → <a href="../blog/guide/aoiro/article5.html" target="_blank" style="color: #2563EB; font-weight: bold; text-decoration: underline;">負担を減らす方法</a></p>
+            </li>
+            <li class="action-card" style="cursor: default;">
+              <div class="action-header">
+                <span class="action-number">3</span>
+                <span class="action-name">青色申告のメリットを記事で読む</span>
+              </div>
+              <p class="action-desc" style="text-align: left;">判断材料の補強 → <a href="../blog/guide/aoiro/article3.html" target="_blank" style="color: #2563EB; font-weight: bold; text-decoration: underline;">青色申告のメリット</a></p>
+            </li>
+          </ul>
+          <p style="font-size: 0.9rem; color: #64748B; margin-top: 12px; padding: 10px; background: #F8FAFC; border-radius: 6px; border-left: 3px solid #C19A6B;">
+            💡 あなたの状況なら、専門家への無料相談も選択肢に入り始めます。 →
+            ${taxLinkHTML}
+          </p>
+        `;
+      } else {
+        // 高額ゾーン：専門家相談を推奨
+        nextActionsHTML += `
+          <ul style="list-style: none; padding: 0; margin: 0;">
+            <li class="action-card featured" style="cursor: default;">
+              <div class="action-header">
+                <span class="action-number">1</span>
+                <span class="action-name">【推奨】専門家に相談する</span>
+              </div>
+              <p class="action-desc" style="text-align: left;">複雑化・金額規模に対応 → ${taxLinkHTML}</p>
+            </li>
+            <li class="action-card" style="cursor: default;">
+              <div class="action-header">
+                <span class="action-number">2</span>
+                <span class="action-name">会計ソフトで自力対応も検討する</span>
+              </div>
+              <p class="action-desc" style="text-align: left;">コストを抑えたい人向け（※下部のツール案内へ）</p>
+            </li>
+            <li class="action-card" style="cursor: default;">
+              <div class="action-header">
+                <span class="action-number">3</span>
+                <span class="action-name">青色申告のメリットを記事で読む</span>
+              </div>
+              <p class="action-desc" style="text-align: left;">判断材料の補強 → <a href="../blog/guide/aoiro/article3.html" target="_blank" style="color: #2563EB; font-weight: bold; text-decoration: underline;">青色申告のメリット</a></p>
+            </li>
+          </ul>
+        `;
+      }
+      nextActionsArea.innerHTML = nextActionsHTML;
+
+      // 広告エリアの生成
+      if (adsArea) {
+        adsArea.innerHTML = `
+          <div class="ad-section">
+            <p class="ad-bridge-title">青色申告を進める場合の補助ツール <span style="font-size: 0.8rem; font-weight: normal; color: #718096; margin-left: 5px;">(PR)</span></p>
+            <p id="cta-dynamic-text" style="font-size: 0.95rem; color: #4a5568; margin-bottom: 1rem; text-align: left; padding: 0 1rem;"></p>
+            <p class="ad-sub-note">どちらも無料で確認できます。</p>
+            <div class="ad-card">
+              <p style="font-size: 0.9rem; color: #2D3748; margin-bottom: 8px; border-bottom: 1px solid #EDF2F7; padding-bottom: 4px;">副業の記録や集計を自動化したい方向け</p>
+              <span class="card-catch">自動化でカンタンに書類作成</span>
+              <div class="card-link-area">
+                <a href="https://px.a8.net/svt/ejp?a8mat=4B1OTN+B89CJ6+4JGQ+BX3J6" target="_blank" rel="nofollow sponsored" class="ad-link" data-ad="mf">
+                  マネーフォワード クラウド確定申告
+                  <span class="cta-text">→ 無料で詳細を確認する</span>
+                </a>
+                <img border="0" width="1" height="1" src="https://www19.a8.net/0.gif?a8mat=4B1OTN+B89CJ6+4JGQ+BX3J6" alt="">
+              </div>
+            </div>
+            <div class="ad-card">
+              <p style="font-size: 0.9rem; color: #2D3748; margin-bottom: 8px; border-bottom: 1px solid #EDF2F7; padding-bottom: 4px;">初めてで何から始めればいいか分からない方向け</p>
+              <span class="card-catch">簿記の知識がなくても安心</span>
+              <div class="card-link-area">
+                <a href="https://px.a8.net/svt/ejp?a8mat=4B1OTN+B5A6IA+3SPO+9FGAK2" target="_blank" rel="nofollow sponsored" class="ad-link" data-ad="freee">
+                  freee会計
+                  <span class="cta-text">→ 無料で試してみる</span>
+                </a>
+                <img border="0" width="1" height="1" src="https://www16.a8.net/0.gif?a8mat=4B1OTN+B5A6IA+3SPO+9FGAK2" alt="">
+              </div>
+            </div>
+            <p class="ad-footer-note">※外部サイトへ移動します</p>
+          </div>
+        `;
+
+        // 動的CTAテキストの生成（中央値ベース）
+        const ctaText = document.getElementById("cta-dynamic-text");
+        let ctaMessage = "";
+        if (medianImpact <= 3) {
+          ctaMessage = "大きな差ではないため、無理のない範囲で進める方法もあります。";
+        } else if (medianImpact <= 8) {
+          ctaMessage = "手間と効果のバランスを考えると、効率化も検討する価値があります。";
+        } else {
+          ctaMessage = "差額が大きくなるため、効率的な方法を検討する価値が高いです。";
+        }
+        if (judgmentPhase === 4) {
+          ctaMessage += " また、金額規模から専門家への相談も視野に入れるとより安心です。";
+        }
+        ctaText.textContent = ctaMessage;
+
+        // 広告クリックログの保存
+        document.querySelectorAll(".ad-link").forEach(link => {
+          link.addEventListener("click", function() {
+            const logData = {
+              ad: this.dataset.ad,
+              median: medianImpact,
+              phase: judgmentPhase,
+              result: resultType,
+              timestamp: new Date().toISOString()
+            };
+            const logs = JSON.parse(localStorage.getItem("ad_click_logs") || "[]");
+            logs.push(logData);
+            localStorage.setItem("ad_click_logs", JSON.stringify(logs));
+            console.log("Ad Click Logged:", logData);
+          });
+        });
+      }
+
+      // 表示
+      const resultArea = document.getElementById('result-area');
+      resultArea.style.display = 'block';
+
+      // スムーズスクロール
+      resultArea.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // 詳細説明のトグル処理
+    document.getElementById('btn-toggle-details').addEventListener('click', function() {
+      const content = document.getElementById('details-content');
+      const icon = document.getElementById('toggle-icon');
+      const isActive = content.classList.toggle('active');
+      icon.textContent = isActive ? '▲' : '▼';
+    });
+
+    function openModal(type) {
+      document.getElementById('modal-overlay').style.display = 'block';
+      document.getElementById('modal-' + type).style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').style.display = 'none';
+      document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+    }
+
+    // ========================================
+    // 隠しログパネル（管理者専用）
+    // ========================================
+    document.addEventListener("keydown", function(e) {
+      if (e.ctrlKey && e.shiftKey && (e.key === "L" || e.key === "l")) {
+        e.preventDefault();
+        openLogPanel();
+      }
+    });
+
+    function openLogPanel() {
+      const password = prompt("管理用パスワードを入力してください");
+      const ADMIN_PASSWORD = "remember11";
+
+      if (password !== ADMIN_PASSWORD) {
+        alert("パスワードが正しくありません");
+        return;
+      }
+
+      const logs = JSON.parse(localStorage.getItem("ad_click_logs") || "[]");
+      const panelHTML = `
+        <div id="log-panel" style="position:fixed; top:10%; left:10%; width:80%; height:70%; background:#fff; border:1px solid #ccc; border-radius:8px; z-index:9999; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,0.15); overflow:auto; color:#333;">
+          <h2 style="margin-top:0; font-size:1.1rem; color:#334155;">広告クリックログ (管理者用)</h2>
+          <button onclick="document.getElementById('log-panel').remove()" style="margin-bottom:15px; padding:6px 12px; cursor:pointer; border:1px solid #CBD5E1; border-radius:4px; background:#F8FAFC;">閉じる</button>
+          <p style="font-size:0.85rem; color:#64748B; margin-bottom:10px;">件数: ${logs.length}件</p>
+          <div style="background:#f8f9fa; padding:15px; border-radius:4px; border:1px solid #eee;">
+            <pre style="margin:0; font-size:12px; line-height:1.4; white-space:pre-wrap;">${JSON.stringify(logs, null, 2)}</pre>
+          </div>
+        </div>
+      `;
+      const old = document.getElementById('log-panel');
+      if (old) old.remove();
+      document.body.insertAdjacentHTML("beforeend", panelHTML);
+    }
+  </script>
+
+  <!-- 注意書き（広告の下に来る想定） -->
+  <div class="footer-note">
+    <p>
+      本ツールは一般的な制度情報をもとに作成した簡易診断です。<br>
+      最終的な申告内容については、必ず公式情報または専門家にご確認ください。
+    </p>
+  </div>
+
+  <!-- 関連情報（ブログ記事リンク） -->
+  <section class="related-info" style="width: 95%; max-width: 860px; margin: 3rem auto 1rem; padding: 2rem; background: #FFF; border: 10px solid var(--wood-border); border-radius: 8px; box-shadow: var(--shadow-card);">
+    <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--wood-dark); margin-bottom: 1.5rem; border-bottom: 2px dashed #CBD5E1; padding-bottom: 0.8rem;">📝 関連情報</h2>
+    <ul style="list-style: none; padding: 0;">
+      <li style="margin-bottom: 1rem; padding-left: 1.5rem; position: relative;">
+        <span style="position: absolute; left: 0; color: #2563EB;">▶</span>
+        <a href="../blog/guide/aoiro/article1.html" target="_blank" style="color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 1.05rem; transition: color 0.3s;" onmouseover="this.style.color='#2563EB'" onmouseout="this.style.color='var(--text-main)'">副業の確定申告はいくらから必要？</a>
+      </li>
+      <li style="margin-bottom: 1rem; padding-left: 1.5rem; position: relative;">
+        <span style="position: absolute; left: 0; color: #2563EB;">▶</span>
+        <a href="../blog/guide/aoiro/article2.html" target="_blank" style="color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 1.05rem; transition: color 0.3s;" onmouseover="this.style.color='#2563EB'" onmouseout="this.style.color='var(--text-main)'">白色申告と青色申告の違い</a>
+      </li>
+      <li style="margin-bottom: 1rem; padding-left: 1.5rem; position: relative;">
+        <span style="position: absolute; left: 0; color: #2563EB;">▶</span>
+        <a href="../blog/guide/aoiro/article3.html" target="_blank" style="color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 1.05rem; transition: color 0.3s;" onmouseover="this.style.color='#2563EB'" onmouseout="this.style.color='var(--text-main)'">青色申告のメリット</a>
+      </li>
+      <li style="margin-bottom: 1rem; padding-left: 1.5rem; position: relative;">
+        <span style="position: absolute; left: 0; color: #2563EB;">▶</span>
+        <a href="../blog/guide/aoiro/article4.html" target="_blank" style="color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 1.05rem; transition: color 0.3s;" onmouseover="this.style.color='#2563EB'" onmouseout="this.style.color='var(--text-main)'">経費の考え方</a>
+      </li>
+      <li style="padding-left: 1.5rem; position: relative;">
+        <span style="position: absolute; left: 0; color: #2563EB;">▶</span>
+        <a href="../blog/guide/aoiro/article5.html" target="_blank" style="color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 1.05rem; transition: color 0.3s;" onmouseover="this.style.color='#2563EB'" onmouseout="this.style.color='var(--text-main)'">確定申告の負担を減らす方法</a>
+      </li>
+    </ul>
+  </section>
+
+  <!-- フッター -->
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="javascript:void(0)" onclick="openModal('about')">運営者情報</a>
+      <a href="javascript:void(0)" onclick="openModal('privacy')">プライバシーポリシー・免責事項</a>
+      <a href="javascript:void(0)" onclick="openModal('contact')">お問い合わせ</a>
+    </div>
+    <p class="copyright">© 2026 ツール作成個人研究室</p>
+  </footer>
+
+  <!-- モーダル共通 -->
+  <div id="modal-overlay" class="modal-overlay" onclick="closeModal()"></div>
+
+  <!-- 運営者情報 -->
+  <div id="modal-about" class="modal">
+    <span class="close" onclick="closeModal()">×</span>
+    <h2>運営者情報</h2>
+    <hr>
+    <p>サイト名：ツール作成個人研究室</p>
+    <p>運営者：ツール作成個人研究室 管理人</p>
+    <p>URL：https://mytool-lab.com/</p>
+    <p>運営目的：日常の面倒な計算や手続きを半自動化し、ユーザーのお金と時間の損失を防ぐためのシミュレーションツールの公開・検証。</p>
+  </div>
+
+  <!-- プライバシー -->
+  <div id="modal-privacy" class="modal">
+    <span class="close" onclick="closeModal()">×</span>
+    <h2>プライバシーポリシー・免責事項</h2>
+    <hr>
+    <h3>広告の配信について</h3>
+    <p>当サイトは第三者配信の広告サービス（Google AdSense等）を利用しています。</p>
+    <h3>アクセス解析ツールについて</h3>
+    <p>Google Analyticsを利用しています。</p>
+    <h3>免責事項</h3>
+    <p>当サイトのツールは目安であり、正確性を保証するものではありません。</p>
+  </div>
+
+  <!-- お問い合わせ -->
+  <div id="modal-contact" class="modal">
+    <span class="close" onclick="closeModal()">×</span>
+    <h2>お問い合わせ</h2>
+    <hr>
+    <p>ご意見・ご質問・不具合報告がありましたら以下よりご連絡ください。</p>
+    <a href="https://docs.google.com/forms/d/1s7seqr1zZrkRQB2sK0Vz3kqAatnzgCqXsr5l-9uZXtw/viewform"
+       target="_blank"
+       class="contact-button">
+      📩 お問い合わせフォームはこちら
+    </a>
+  </div>
+</body>
+</html>
