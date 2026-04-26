@@ -212,7 +212,6 @@ function calcDifference(resultA, resultB) {
     top30Diff:   diff.top30.difference,
     bot30Diff:   diff.bot30.difference,
     top5Diff:    diff.top5.difference,
-    bot5Diff:    diff.bot5.difference,
-    yearlyDiff: {}
+    bot5Diff:    diff.bot5.difference
   };
 }

@@ -572,6 +572,7 @@ function renderChart({ resultA, resultB }, caseKey) {
           tension: 0.3,
           pointRadius: 0,
           pointHoverRadius: 0,
+          hidden: caseKey === "median",
           order: 4
         },
         {
@@ -584,6 +585,7 @@ function renderChart({ resultA, resultB }, caseKey) {
           tension: 0.3,
           pointRadius: 0,
           pointHoverRadius: 0,
+          hidden: caseKey === "median",
           order: 5
         }
       ]
