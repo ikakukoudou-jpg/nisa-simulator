@@ -32,9 +32,19 @@
       <!-- 上部スペーサー（将来的な広告枠・バナー配置用） -->
       <div style="height: 12px;"></div>
       <h1>投資信託 比較シミュレーター</h1>
-      <p style="font-size: 0.85rem; color: #475569; max-width: 640px; margin: 4px auto 16px; line-height: 1.5;">
-        新NISAで人気の2本の投資信託を選び、15年・20年後の将来資産額を比較できます。
+      <p style="font-size: 0.95rem; color: #1e293b; max-width: 640px; margin: 16px auto; line-height: 1.7; font-weight: 500;">
+        投資信託の利回り差はわずかでも、長期では結果に大きな差が出る可能性があります。このツールでは、2つの投資信託を同条件で比較し、将来の資産額と差額の分布を確認できます。
       </p>
+
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px; text-align: left; max-width: 600px; margin: 0 auto 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <p style="font-weight: 800; color: #1e293b; margin-top: 0; margin-bottom: 8px; font-size: 0.9rem;">■ このツールで分かること</p>
+        <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem; color: #475569; line-height: 1.8;">
+          <li>・利回り差が長期でどれくらい影響するか</li>
+          <li>・将来資産のばらつき（分布）</li>
+          <li>・2つの投資信託の差額</li>
+        </ul>
+        <p style="font-size: 0.72rem; color: #94a3b8; margin-top: 8px; margin-bottom: 0;">※結果は一定ではなく、市場状況によって変動します</p>
+      </div>
     </header>
 
     <!-- プリセットボタン -->
@@ -260,15 +270,30 @@
       </details>
     </section>
 
-    <!-- 投資信託比較の見方 -->
-    <section class="section">
-      <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 8px;">
-        <h3 style="font-size: 0.95rem; color: #1e293b; margin-top: 0; margin-bottom: 6px; font-weight: 700;">📌 投資信託比較の見方</h3>
-        <p style="color: #475569; font-size: 0.85em; line-height: 1.5; margin: 0;">
-          同じ積立額でも、期待リターンと価格変動率によって将来資産額は変わります。<br>
-          FANG+は高い成長期待がありますが変動が大きく、S&P500やオルカンは比較的安定した傾向があります。<br>
-          長期積立では年数が長いほど差が広がる可能性があります。
-        </p>
+
+    <!-- CTA補助文 & シミュレーション例 -->
+    <section class="section" style="max-width: 900px; margin: 32px auto;">
+      <p style="color: #4f46e5; font-size: 1rem; font-weight: 700; text-align: center; margin-bottom: 20px;">
+        この差額を現実的に管理する場合は、積立設定や記録の自動化も重要になります。
+      </p>
+
+      <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <p style="font-weight: 800; color: #1e293b; margin-top: 0; margin-bottom: 12px; font-size: 0.95rem;">■ シミュレーション例（目安）</p>
+        <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.9rem; color: #475569; line-height: 1.8;">
+          <li style="margin-bottom: 8px;">
+            <strong>・利回り3% vs 5%（月3万円・20年）</strong><br>
+            <span style="font-size: 0.85rem; color: #64748b;">→ 最終資産に数百万円単位の差が出る可能性あり</span>
+          </li>
+          <li style="margin-bottom: 8px;">
+            <strong>・利回り5% vs 6%（月5万円・20年）</strong><br>
+            <span style="font-size: 0.85rem; color: #64748b;">→ 小さな差でも長期では差額が拡大する傾向</span>
+          </li>
+          <li style="margin-bottom: 8px;">
+            <strong>・利回り3% vs 3.5%（月3万円・15年）</strong><br>
+            <span style="font-size: 0.85rem; color: #64748b;">→ 差は限定的だが無視できない水準</span>
+          </li>
+        </ul>
+        <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 12px; margin-bottom: 0;">※実際の結果は市場環境や条件によって異なります</p>
       </div>
     </section>
 
@@ -339,6 +364,27 @@
         </div>
 
       </div>
+    </section>
+
+    <!-- よくある質問 -->
+    <section class="section" style="max-width: 900px; margin: 0 auto 32px;">
+      <details class="beginner-guide-details">
+        <summary class="beginner-guide-summary" style="font-weight: 700;">■ よくある質問</summary>
+        <div class="beginner-guide-content" style="padding-top: 16px;">
+          <div style="margin-bottom: 16px;">
+            <p style="font-weight: 700; color: #4f46e5; margin-bottom: 4px;">Q. 利回り差はどれくらい影響しますか？</p>
+            <p style="margin: 0; font-size: 0.9rem;">A. 数%の差でも、長期では大きな差になる可能性があります。</p>
+          </div>
+          <div style="margin-bottom: 16px;">
+            <p style="font-weight: 700; color: #4f46e5; margin-bottom: 4px;">Q. このシミュレーションは正確ですか？</p>
+            <p style="margin: 0; font-size: 0.9rem;">A. 将来の市場は不確実なため、あくまで目安として利用してください。</p>
+          </div>
+          <div>
+            <p style="font-weight: 700; color: #4f46e5; margin-bottom: 4px;">Q. どちらの投資信託が良いですか？</p>
+            <p style="margin: 0; font-size: 0.9rem;">A. リスク許容度や投資方針によって異なります。このツールでは比較の参考を提供しています。</p>
+          </div>
+        </div>
+      </details>
     </section>
 
     <!-- フッター -->
